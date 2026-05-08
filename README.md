@@ -1,5 +1,7 @@
 # Volo Blog
 
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 Volo Blog is a lightweight Markdown blog implemented in Rust with CloudWeGo Volo-HTTP, SQLite, SQLx migrations, and Askama server-side templates.
 
 The current codebase targets M1 from `Prd.md`: project initialization plus a read-only public blog. Admin login, content CRUD, uploads, RSS, sitemap, SEO expansion, and deployment hardening are planned for later milestones.
