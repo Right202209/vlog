@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Search - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <p class="eyebrow">Search</p>
+    <h1>Search</h1>
+</section>
+
+<form class="search-form" action="/search" method="get">
+    <label for="q">Keyword</label>
+    <div>
+        <input id="q" type="search" name="q" value="{{ query }}" placeholder="Search posts">
+        <button type="submit">Search</button>
+    </div>
+</form>
+
+<section class="post-list search-results">
+    {% for item in posts %}
+    <article class="post-card">
+        <h2><a href="/posts/{{ item.post.slug }}">{{ item.post.title }}</a></h2>
+        {% match item.post.summary %}
+        {% when Some with (summary) %}
+        <p>{{ summary }}</p>
+        {% when None %}
+        {% endmatch %}
+        <div class="tag-row">
+            {% for tag in item.tags %}
+            <a href="/tags/{{ tag.slug }}">#{{ tag.name }}</a>
+            {% endfor %}
+        </div>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}
+

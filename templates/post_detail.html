@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - {{ site_name }}{% endblock %}
+
+{% block content %}
+<article class="article">
+    <header class="article-header">
+        <p class="eyebrow">Post</p>
+        <h1>{{ post.title }}</h1>
+        <div class="meta">
+            {% match post.published_at %}
+            {% when Some with (published_at) %}
+            <time>{{ published_at }}</time>
+            {% when None %}
+            {% endmatch %}
+            {% match category %}
+            {% when Some with (category) %}
+            <a href="/categories/{{ category.slug }}">{{ category.name }}</a>
+            {% when None %}
+            {% endmatch %}
+        </div>
+        <div class="tag-row">
+            {% for tag in tags %}
+            <a href="/tags/{{ tag.slug }}">#{{ tag.name }}</a>
+            {% endfor %}
+        </div>
+    </header>
+
+    <div class="content">
+        {{ post.content_html|safe }}
+    </div>
+</article>
+{% endblock %}
+

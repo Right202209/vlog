@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}{{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <p class="eyebrow">Latest Posts</p>
+    <h1>{{ site_name }}</h1>
+    <p>{{ site_description }}</p>
+</section>
+
+<div class="layout">
+    <section class="post-list" aria-label="Posts">
+        {% for item in posts %}
+        <article class="post-card">
+            <h2><a href="/posts/{{ item.post.slug }}">{{ item.post.title }}</a></h2>
+            {% match item.post.summary %}
+            {% when Some with (summary) %}
+            <p>{{ summary }}</p>
+            {% when None %}
+            {% endmatch %}
+            <div class="meta">
+                {% match item.post.published_at %}
+                {% when Some with (published_at) %}
+                <time>{{ published_at }}</time>
+                {% when None %}
+                {% endmatch %}
+                {% match item.category %}
+                {% when Some with (category) %}
+                <a href="/categories/{{ category.slug }}">{{ category.name }}</a>
+                {% when None %}
+                {% endmatch %}
+            </div>
+            <div class="tag-row">
+                {% for tag in item.tags %}
+                <a href="/tags/{{ tag.slug }}">#{{ tag.name }}</a>
+                {% endfor %}
+            </div>
+        </article>
+        {% endfor %}
+
+        <nav class="pagination" aria-label="Pagination">
+            <span>Page {{ page }} of {{ total_pages }}</span>
+        </nav>
+    </section>
+
+    <aside class="sidebar" aria-label="Browse">
+        <section>
+            <h2>Categories</h2>
+            <ul>
+                {% for category in categories %}
+                <li><a href="/categories/{{ category.slug }}">{{ category.name }}</a></li>
+                {% endfor %}
+            </ul>
+        </section>
+        <section>
+            <h2>Tags</h2>
+            <div class="tag-cloud">
+                {% for tag in tags %}
+                <a href="/tags/{{ tag.slug }}">{{ tag.name }}</a>
+                {% endfor %}
+            </div>
+        </section>
+    </aside>
+</div>
+{% endblock %}
+

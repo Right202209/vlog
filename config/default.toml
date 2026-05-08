@@ -1,0 +1,9 @@
+site_name = "Volo Blog"
+site_description = "A lightweight Markdown blog powered by Volo-HTTP."
+host = "127.0.0.1"
+port = 8080
+database_url = "sqlite://vlog.db"
+static_dir = "static"
+upload_dir = "storage/uploads"
+posts_per_page = 10
+

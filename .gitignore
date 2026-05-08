@@ -1,3 +1,7 @@
 .codex
 .venv/
 AGENT.md
+target/
+vlog.db
+vlog.db-shm
+vlog.db-wal
