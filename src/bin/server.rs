@@ -18,7 +18,8 @@ async fn main() {
     }
 }
 
-async fn run() -> Result<(), Box<dyn std::error::Error>> {
+async fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> 
+{
     let settings = vlog::config::load()?;
     std::fs::create_dir_all(&settings.upload_dir)?;
 

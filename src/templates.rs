@@ -1,6 +1,6 @@
 use askama::Template;
 use volo_http::http::{header, HeaderValue, StatusCode};
-use volo_http::response::ServerResponse;
+use volo_http::response::Response;
 use volo_http::server::IntoResponse;
 
 use crate::domain::{ArchiveMonth, Category, Post, PostListItem, Tag};
@@ -83,7 +83,7 @@ pub struct NotFoundTemplate {
 pub struct HtmlTemplate<T: Template>(pub T);
 
 impl<T: Template> IntoResponse for HtmlTemplate<T> {
-    fn into_response(self) -> ServerResponse {
+    fn into_response(self) -> Response {
         match self.0.render() {
             Ok(body) => {
                 let mut response = body.into_response();

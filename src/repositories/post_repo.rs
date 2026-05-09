@@ -14,7 +14,7 @@ pub async fn list_published(
     per_page: u32,
 ) -> sqlx::Result<Vec<Post>> {
     let offset = ((page.max(1) - 1) * per_page) as i64;
-    sqlx::query_as::<_, Post>(base_select(
+    sqlx::query_as::<_, Post>(&base_select(
         "WHERE status = 'published'
          ORDER BY published_at DESC, id DESC
          LIMIT ? OFFSET ?",
@@ -34,7 +34,7 @@ pub async fn count_published(pool: &SqlitePool) -> sqlx::Result<i64> {
 }
 
 pub async fn find_by_slug(pool: &SqlitePool, slug: &str) -> sqlx::Result<Option<Post>> {
-    sqlx::query_as::<_, Post>(base_select(
+    sqlx::query_as::<_, Post>(&base_select(
         "WHERE status = 'published' AND slug = ?
          LIMIT 1",
     ))

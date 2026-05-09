@@ -1,6 +1,6 @@
 use thiserror::Error;
 use volo_http::http::StatusCode;
-use volo_http::response::ServerResponse;
+use volo_http::response::Response;
 use volo_http::server::IntoResponse;
 
 #[derive(Debug, Error)]
@@ -16,7 +16,7 @@ pub enum AppError {
 }
 
 impl IntoResponse for AppError {
-    fn into_response(self) -> ServerResponse {
+    fn into_response(self) -> Response {
         match self {
             Self::NotFound => (StatusCode::NOT_FOUND, "Not Found").into_response(),
             Self::StateNotInitialized => {
