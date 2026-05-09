@@ -42,9 +42,9 @@ Not implemented yet:
 ## Requirements
 
 - Rust toolchain managed by `rustup`.
-- The repo pins Rust `1.86` in `rust-toolchain.toml`.
+- The repo pins Rust `1.88` in `rust-toolchain.toml`.
 
-The original PRD minimum was Rust 1.80. During implementation, the latest Volo dependency graph selected crates that require newer Cargo/Rust support, so the pin was raised to 1.86 while keeping this crate on Rust 2021 edition.
+The original PRD minimum was Rust 1.80. During implementation, the latest Volo dependency graph selected crates that require newer Cargo/Rust support, including Rust 2024 let chains in `volo-http`, so the pin was raised to 1.88 while keeping this crate on Rust 2021 edition.
 
 ## Run Locally
 

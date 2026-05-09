@@ -19,7 +19,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Pinned the Rust toolchain to `1.86` because the current `volo`/`volo-http` dependency graph requires a Cargo version that can parse edition-2024 manifests and transitive ICU crates requiring Rust 1.86.
+- Pinned the Rust toolchain to `1.88` because the current `volo`/`volo-http` dependency graph uses Rust 2024 let chains.
 
 ### Verification
 
@@ -31,4 +31,3 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Added project documentation for setup, configuration, architecture, current scope, and milestone status.
-

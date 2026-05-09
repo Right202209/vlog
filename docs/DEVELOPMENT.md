@@ -8,10 +8,10 @@ The repo uses `rust-toolchain.toml`:
 
 ```toml
 [toolchain]
-channel = "1.86"
+channel = "1.88"
 ```
 
-Rust 1.86 is currently required by the selected Volo dependency graph. The application crate itself still uses Rust 2021 edition.
+Rust 1.88 is currently required by the selected Volo dependency graph because `volo-http` uses Rust 2024 let chains. The application crate itself still uses Rust 2021 edition.
 
 ## Common Commands
 
@@ -87,4 +87,3 @@ Expected results:
 - Public route state is currently held in a process-wide `OnceCell<Arc<AppState>>`. This keeps M1 simple while avoiding assumptions about Volo-HTTP state extraction APIs.
 - Seed posts store pre-rendered HTML in `content_html`. Markdown rendering on write belongs to M2.
 - RSS and sitemap belong to M3 and are intentionally not wired yet.
-

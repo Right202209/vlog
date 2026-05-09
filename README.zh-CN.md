@@ -42,9 +42,9 @@ Volo Blog 是一个轻量级 Markdown 博客，使用 Rust、CloudWeGo Volo-HTTP
 ## 环境要求
 
 - 通过 `rustup` 管理的 Rust 工具链。
-- 仓库在 `rust-toolchain.toml` 中固定 Rust `1.86`。
+- 仓库在 `rust-toolchain.toml` 中固定 Rust `1.88`。
 
-原始 PRD 的最低要求是 Rust 1.80。实现过程中，最新的 Volo 依赖图选择了一些需要更新 Cargo/Rust 支持的 crate，因此将固定版本提升到 1.86，同时本 crate 仍保持 Rust 2021 edition。
+原始 PRD 的最低要求是 Rust 1.80。实现过程中，最新的 Volo 依赖图选择了一些需要更新 Cargo/Rust 支持的 crate，包括 `volo-http` 中的 Rust 2024 let chains，因此将固定版本提升到 1.88，同时本 crate 仍保持 Rust 2021 edition。
 
 ## 本地运行
 
