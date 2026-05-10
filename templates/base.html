@@ -37,10 +37,11 @@
 
     <main class="wrap main">
         <div class="app-grid">
+            <!-- 侧边栏移到左侧 (Sidebar moved to the left) -->
+            {% block right_rail %}{% endblock %}
             <div class="main-col">
                 {% block content %}{% endblock %}
             </div>
-            {% block right_rail %}{% endblock %}
         </div>
     </main>
 
