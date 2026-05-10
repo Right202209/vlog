@@ -1,0 +1,17 @@
+# Ignore everything by default; explicitly allow what we copy in.
+target
+**/target
+.git
+.github
+.vscode
+.idea
+.DS_Store
+storage
+*.db
+*.db-shm
+*.db-wal
+docs
+README*.md
+CHANGELOG.md
+CLAUDE.md
+Prd.md
