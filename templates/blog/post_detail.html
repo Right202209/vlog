@@ -8,14 +8,14 @@
 {% block og_description %}{% match post.summary %}{% when Some with (s) %}{{ s }}{% when None %}{{ site_description }}{% endmatch %}{% endblock %}
 {% block og_type %}article{% endblock %}
 {% block og_extra %}
-    <meta property="og:url" content="{{ site_url }}/posts/{{ post.slug }}">
+    <meta property="og:url" content="{{ site_url }}/blog/posts/{{ post.slug }}">
     {% match post.cover_image %}
     {% when Some with (cover) %}
     <meta property="og:image" content="{{ cover }}">
     {% when None %}
     {% endmatch %}
 {% endblock %}
-{% block canonical %}<link rel="canonical" href="{{ site_url }}/posts/{{ post.slug }}">{% endblock %}
+{% block canonical %}<link rel="canonical" href="{{ site_url }}/blog/posts/{{ post.slug }}">{% endblock %}
 
 {% block content %}
 <article class="article">
@@ -30,13 +30,13 @@
             {% endmatch %}
             {% match category %}
             {% when Some with (category) %}
-            <a href="/categories/{{ category.slug }}">{{ category.name }}</a>
+            <a href="/blog/categories/{{ category.slug }}">{{ category.name }}</a>
             {% when None %}
             {% endmatch %}
         </div>
         <div class="tag-row">
             {% for tag in tags %}
-            <a href="/tags/{{ tag.slug }}">#{{ tag.name }}</a>
+            <a href="/blog/tags/{{ tag.slug }}">#{{ tag.name }}</a>
             {% endfor %}
         </div>
     </header>

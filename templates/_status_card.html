@@ -1,0 +1,122 @@
+<article class="status-card{% if view.status.is_repost() && !view.status.is_quote_repost() %} status-repost{% endif %}">
+    {% if view.status.is_repost() && !view.status.is_quote_repost() %}
+    <div class="repost-banner">
+        <a href="/u/{{ view.author.username }}">{{ view.author.display_label() }}</a> reposted
+    </div>
+    {% match view.original %}
+    {% when Some with (orig) %}
+    <div class="status-row">
+        <div class="status-avatar">
+            {% match orig.author.avatar_url %}
+            {% when Some with (a) %}
+            <a href="/u/{{ orig.author.username }}"><img class="avatar" src="{{ a }}" alt=""></a>
+            {% when None %}
+            <a href="/u/{{ orig.author.username }}" class="avatar avatar-fallback">{{ orig.author.display_label()|truncate(1) }}</a>
+            {% endmatch %}
+        </div>
+        <div class="status-body">
+            <header class="status-header">
+                <a class="display-name" href="/u/{{ orig.author.username }}">{{ orig.author.display_label() }}</a>
+                <span class="muted">@{{ orig.author.username }}</span>
+                <span class="muted">·</span>
+                <a class="muted" href="/s/{{ orig.status.id }}"><time>{{ orig.status.created_at }}</time></a>
+            </header>
+            <div class="status-content">
+                {{ orig.status.content_html|safe }}
+            </div>
+            {% if !orig.assets.is_empty() %}
+            <div class="status-media count-{{ orig.assets.len() }}">
+                {% for a in orig.assets %}
+                <a href="{{ a.stored_path }}" class="media-tile"><img src="{{ a.stored_path }}" alt="{{ a.original_name }}"></a>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <footer class="status-actions">
+                <a class="action" href="/s/{{ orig.status.id }}">💬 {{ orig.status.reply_count }}</a>
+                {% match viewer %}
+                {% when Some with (vw) %}
+                <form class="action-form" method="post" action="/s/{{ orig.status.id }}/{% if orig.viewer_reposted %}unrepost{% else %}repost{% endif %}">
+                    <input type="hidden" name="csrf_token" value="{{ vw.csrf_token }}">
+                    <button type="submit" class="action{% if orig.viewer_reposted %} active{% endif %}">🔁 {{ orig.status.repost_count }}</button>
+                </form>
+                <form class="action-form" method="post" action="/s/{{ orig.status.id }}/{% if orig.viewer_liked %}unlike{% else %}like{% endif %}">
+                    <input type="hidden" name="csrf_token" value="{{ vw.csrf_token }}">
+                    <button type="submit" class="action{% if orig.viewer_liked %} active{% endif %}">♥ {{ orig.status.like_count }}</button>
+                </form>
+                {% when None %}
+                <span class="action">🔁 {{ orig.status.repost_count }}</span>
+                <span class="action">♥ {{ orig.status.like_count }}</span>
+                {% endmatch %}
+            </footer>
+        </div>
+    </div>
+    {% when None %}
+    <div class="muted">Original post is unavailable.</div>
+    {% endmatch %}
+    {% else %}
+    <div class="status-row">
+        <div class="status-avatar">
+            {% match view.author.avatar_url %}
+            {% when Some with (a) %}
+            <a href="/u/{{ view.author.username }}"><img class="avatar" src="{{ a }}" alt=""></a>
+            {% when None %}
+            <a href="/u/{{ view.author.username }}" class="avatar avatar-fallback">{{ view.author.display_label()|truncate(1) }}</a>
+            {% endmatch %}
+        </div>
+        <div class="status-body">
+            <header class="status-header">
+                <a class="display-name" href="/u/{{ view.author.username }}">{{ view.author.display_label() }}</a>
+                <span class="muted">@{{ view.author.username }}</span>
+                <span class="muted">·</span>
+                <a class="muted" href="/s/{{ view.status.id }}"><time>{{ view.status.created_at }}</time></a>
+            </header>
+            <div class="status-content">
+                {{ view.status.content_html|safe }}
+            </div>
+            {% if !view.assets.is_empty() %}
+            <div class="status-media count-{{ view.assets.len() }}">
+                {% for a in view.assets %}
+                <a href="{{ a.stored_path }}" class="media-tile"><img src="{{ a.stored_path }}" alt="{{ a.original_name }}"></a>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% if view.status.is_quote_repost() %}
+            {% match view.original %}
+            {% when Some with (orig) %}
+            <div class="quoted">
+                <header class="quoted-header">
+                    <a class="display-name" href="/u/{{ orig.author.username }}">{{ orig.author.display_label() }}</a>
+                    <span class="muted">@{{ orig.author.username }}</span>
+                </header>
+                <div class="status-content">{{ orig.status.content_html|safe }}</div>
+            </div>
+            {% when None %}
+            {% endmatch %}
+            {% endif %}
+            <footer class="status-actions">
+                <a class="action" href="/s/{{ view.status.id }}">💬 {{ view.status.reply_count }}</a>
+                {% match viewer %}
+                {% when Some with (vw) %}
+                <form class="action-form" method="post" action="/s/{{ view.status.id }}/{% if view.viewer_reposted %}unrepost{% else %}repost{% endif %}">
+                    <input type="hidden" name="csrf_token" value="{{ vw.csrf_token }}">
+                    <button type="submit" class="action{% if view.viewer_reposted %} active{% endif %}">🔁 {{ view.status.repost_count }}</button>
+                </form>
+                <form class="action-form" method="post" action="/s/{{ view.status.id }}/{% if view.viewer_liked %}unlike{% else %}like{% endif %}">
+                    <input type="hidden" name="csrf_token" value="{{ vw.csrf_token }}">
+                    <button type="submit" class="action{% if view.viewer_liked %} active{% endif %}">♥ {{ view.status.like_count }}</button>
+                </form>
+                {% if vw.user_id == view.status.user_id %}
+                <form class="action-form" method="post" action="/s/{{ view.status.id }}/delete" onsubmit="return confirm('Delete this status?');">
+                    <input type="hidden" name="csrf_token" value="{{ vw.csrf_token }}">
+                    <button type="submit" class="action danger">Delete</button>
+                </form>
+                {% endif %}
+                {% when None %}
+                <span class="action">🔁 {{ view.status.repost_count }}</span>
+                <span class="action">♥ {{ view.status.like_count }}</span>
+                {% endmatch %}
+            </footer>
+        </div>
+    </div>
+    {% endif %}
+</article>

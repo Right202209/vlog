@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}{{ site_name }}{% endblock %}
+
+{% block nav_user %}{% match viewer %}{% when Some with (v) %}<a href="/u/{{ v.username }}">@{{ v.username }}</a> · <a href="/me/edit">Edit</a> · <form class="inline-form" method="post" action="/admin/logout"><input type="hidden" name="csrf_token" value="{{ v.csrf_token }}"><button type="submit" class="link-button">Sign out</button></form>{% when None %}<a href="/admin/login">Sign in</a>{% endmatch %}{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <p class="eyebrow">Timeline</p>
+    <h1>What's happening</h1>
+</section>
+
+{% include "_composer.html" %}
+
+<section class="status-feed" aria-label="Statuses">
+    {% for view in statuses %}
+    {% include "_status_card.html" %}
+    {% else %}
+    <p class="muted">No statuses yet.</p>
+    {% endfor %}
+    <nav class="pagination" aria-label="Pagination">
+        <span>Page {{ page }} of {{ total_pages }}</span>
+    </nav>
+</section>
+{% endblock %}

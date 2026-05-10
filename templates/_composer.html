@@ -1,0 +1,35 @@
+{% match viewer %}
+{% when Some with (v) %}
+<form class="composer" method="post" action="{{ compose_action }}" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ v.csrf_token }}">
+    {% match parent_id %}
+    {% when Some with (pid) %}
+    <input type="hidden" name="parent_id" value="{{ pid }}">
+    {% when None %}
+    {% endmatch %}
+    <div class="composer-row">
+        <div class="composer-avatar">
+            {% match v.avatar_url %}
+            {% when Some with (a) %}
+            <img class="avatar" src="{{ a }}" alt="">
+            {% when None %}
+            <span class="avatar avatar-fallback">{{ v.display_name|truncate(1) }}</span>
+            {% endmatch %}
+        </div>
+        <div class="composer-body">
+            <textarea name="content_md" rows="3" placeholder="{{ composer_placeholder }}" maxlength="8192"></textarea>
+            <div class="composer-actions">
+                <label class="composer-attach">
+                    <input type="file" name="files" accept="image/*" multiple>
+                    <span>Add images</span>
+                </label>
+                <button type="submit" class="primary">Post</button>
+            </div>
+        </div>
+    </div>
+</form>
+{% when None %}
+<aside class="composer-signin">
+    <p>Sign in to post. <a href="/admin/login">Sign in</a></p>
+</aside>
+{% endmatch %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Edit profile - {{ site_name }}{% endblock %}
+
+{% block nav_user %}{% match viewer %}{% when Some with (v) %}<a href="/u/{{ v.username }}">@{{ v.username }}</a> · <a href="/me/edit">Edit</a> · <form class="inline-form" method="post" action="/admin/logout"><input type="hidden" name="csrf_token" value="{{ v.csrf_token }}"><button type="submit" class="link-button">Sign out</button></form>{% when None %}<a href="/admin/login">Sign in</a>{% endmatch %}{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <p class="eyebrow">Profile</p>
+    <h1>Edit profile</h1>
+</section>
+
+{% match message %}
+{% when Some with (m) %}
+<p class="info">{{ m }}</p>
+{% when None %}
+{% endmatch %}
+
+<form class="admin-form" method="post" action="/me/edit">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>
+        Display name
+        <input type="text" name="display_name" value="{{ display_name }}" maxlength="60">
+    </label>
+    <label>
+        Bio
+        <textarea name="bio" rows="4" maxlength="280">{{ bio }}</textarea>
+    </label>
+    <button type="submit" class="primary">Save profile</button>
+</form>
+
+<form class="admin-form" method="post" action="/me/avatar" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>
+        Avatar
+        <input type="file" name="file" accept="image/*">
+    </label>
+    {% match avatar_url %}
+    {% when Some with (a) %}
+    <p class="muted">Current avatar: <img class="avatar" src="{{ a }}" alt=""></p>
+    {% when None %}
+    {% endmatch %}
+    <button type="submit" class="primary">Upload avatar</button>
+</form>
+
+<form class="admin-form" method="post" action="/me/password">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>
+        New password
+        <input type="password" name="new_password" minlength="8" required>
+    </label>
+    <button type="submit" class="primary">Change password</button>
+</form>
+{% endblock %}

@@ -21,10 +21,13 @@
         <div class="wrap header-inner">
             <a class="brand" href="/">{{ site_name }}</a>
             <nav class="nav" aria-label="Primary">
-                <a href="/posts">Posts</a>
-                <a href="/archive">Archive</a>
-                <a href="/search">Search</a>
-                <a href="/about">About</a>
+                <a href="/">Feed</a>
+                <a href="/home">Home</a>
+                <a href="/blog">Blog</a>
+                <a href="/blog/search">Search</a>
+                <span class="nav-user">
+                    {% block nav_user %}<a href="/admin/login">Sign in</a>{% endblock %}
+                </span>
             </nav>
         </div>
     </header>

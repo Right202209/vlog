@@ -8,7 +8,7 @@
     <h1>Search</h1>
 </section>
 
-<form class="expandable-search" action="/search" method="get">
+<form class="expandable-search" action="/blog/search" method="get">
     <div class="search-line"></div>
     <input id="q" type="search" name="q" value="{{ query }}" placeholder="Search..." required>
     <button type="submit" aria-label="Search" class="search-btn">
@@ -27,7 +27,7 @@
 <section class="post-list search-results">
     {% for item in posts %}
     <article class="post-card">
-        <h2><a href="/posts/{{ item.post.slug }}">{{ item.post.title }}</a></h2>
+        <h2><a href="/blog/posts/{{ item.post.slug }}">{{ item.post.title }}</a></h2>
         {% match item.post.summary %}
         {% when Some with (summary) %}
         <p>{{ summary }}</p>
@@ -35,7 +35,7 @@
         {% endmatch %}
         <div class="tag-row">
             {% for tag in item.tags %}
-            <a href="/tags/{{ tag.slug }}">#{{ tag.name }}</a>
+            <a href="/blog/tags/{{ tag.slug }}">#{{ tag.name }}</a>
             {% endfor %}
         </div>
     </article>

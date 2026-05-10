@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Followers of @{{ profile.username }} - {{ site_name }}{% endblock %}
+
+{% block nav_user %}{% match viewer %}{% when Some with (v) %}<a href="/u/{{ v.username }}">@{{ v.username }}</a> · <a href="/me/edit">Edit</a> · <form class="inline-form" method="post" action="/admin/logout"><input type="hidden" name="csrf_token" value="{{ v.csrf_token }}"><button type="submit" class="link-button">Sign out</button></form>{% when None %}<a href="/admin/login">Sign in</a>{% endmatch %}{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <p class="eyebrow"><a href="/u/{{ profile.username }}">@{{ profile.username }}</a></p>
+    <h1>Followers</h1>
+</section>
+
+<ul class="user-list">
+    {% for u in users %}
+    <li class="user-list-item">
+        {% match u.avatar_url %}
+        {% when Some with (a) %}
+        <a href="/u/{{ u.username }}"><img class="avatar" src="{{ a }}" alt=""></a>
+        {% when None %}
+        <a href="/u/{{ u.username }}" class="avatar avatar-fallback">{{ u.display_label()|truncate(1) }}</a>
+        {% endmatch %}
+        <div>
+            <a class="display-name" href="/u/{{ u.username }}">{{ u.display_label() }}</a>
+            <span class="muted">@{{ u.username }}</span>
+        </div>
+    </li>
+    {% else %}
+    <li class="muted">No followers yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

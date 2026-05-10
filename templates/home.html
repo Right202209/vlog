@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Home - {{ site_name }}{% endblock %}
+
+{% block nav_user %}{% match viewer %}{% when Some with (v) %}<a href="/u/{{ v.username }}">@{{ v.username }}</a> · <a href="/me/edit">Edit</a> · <form class="inline-form" method="post" action="/admin/logout"><input type="hidden" name="csrf_token" value="{{ v.csrf_token }}"><button type="submit" class="link-button">Sign out</button></form>{% when None %}<a href="/admin/login">Sign in</a>{% endmatch %}{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <p class="eyebrow">Home</p>
+    <h1>Following</h1>
+    <p class="muted">Statuses from accounts you follow, plus your own.</p>
+</section>
+
+{% include "_composer.html" %}
+
+<section class="status-feed" aria-label="Home timeline">
+    {% for view in statuses %}
+    {% include "_status_card.html" %}
+    {% else %}
+    <p class="muted">Your home timeline is empty. Follow someone to fill it up.</p>
+    {% endfor %}
+    <nav class="pagination" aria-label="Pagination">
+        <span>Page {{ page }} of {{ total_pages }}</span>
+    </nav>
+</section>
+{% endblock %}

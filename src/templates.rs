@@ -3,10 +3,139 @@ use volo_http::http::{header, header::HeaderName, HeaderValue, StatusCode};
 use volo_http::response::Response;
 use volo_http::server::IntoResponse;
 
-use crate::domain::{ArchiveMonth, Category, Post, PostListItem, SiteSettings, Tag};
+use crate::domain::{ArchiveMonth, Category, Post, PostListItem, SiteSettings, StatusView, Tag, User};
+
+#[derive(Debug, Clone)]
+pub struct ViewerContext {
+    pub user_id: i64,
+    pub username: String,
+    pub display_name: String,
+    pub avatar_url: Option<String>,
+    pub csrf_token: String,
+    pub is_admin: bool,
+}
+
+impl ViewerContext {
+    pub fn from_user(user: &User, csrf_token: &str) -> Self {
+        Self {
+            user_id: user.id,
+            username: user.username.clone(),
+            display_name: user.display_label().to_string(),
+            avatar_url: user.avatar_url.clone(),
+            csrf_token: csrf_token.to_string(),
+            is_admin: user.is_admin(),
+        }
+    }
+}
+
+// ===== Microblog =====
 
 #[derive(Template)]
-#[template(path = "index.html")]
+#[template(path = "timeline.html")]
+pub struct TimelineTemplate {
+    pub site_name: String,
+    pub site_description: String,
+    pub viewer: Option<ViewerContext>,
+    pub statuses: Vec<StatusView>,
+    pub page: u32,
+    pub total_pages: u32,
+    pub compose_action: String,
+    pub composer_placeholder: String,
+    pub parent_id: Option<i64>,
+}
+
+#[derive(Template)]
+#[template(path = "home.html")]
+pub struct HomeTemplate {
+    pub site_name: String,
+    pub site_description: String,
+    pub viewer: Option<ViewerContext>,
+    pub statuses: Vec<StatusView>,
+    pub page: u32,
+    pub total_pages: u32,
+    pub compose_action: String,
+    pub composer_placeholder: String,
+    pub parent_id: Option<i64>,
+}
+
+#[derive(Template)]
+#[template(path = "status_detail.html")]
+pub struct StatusDetailTemplate {
+    pub site_name: String,
+    pub site_description: String,
+    pub viewer: Option<ViewerContext>,
+    pub root: StatusView,
+    pub replies: Vec<StatusView>,
+    pub compose_action: String,
+    pub composer_placeholder: String,
+    pub parent_id: Option<i64>,
+}
+
+#[derive(Template)]
+#[template(path = "profile.html")]
+pub struct ProfileTemplate {
+    pub site_name: String,
+    pub site_description: String,
+    pub viewer: Option<ViewerContext>,
+    pub profile: User,
+    pub statuses: Vec<StatusView>,
+    pub follower_count: i64,
+    pub following_count: i64,
+    pub viewer_following: bool,
+    pub page: u32,
+    pub total_pages: u32,
+}
+
+#[derive(Template)]
+#[template(path = "followers.html")]
+pub struct FollowersTemplate {
+    pub site_name: String,
+    pub site_description: String,
+    pub viewer: Option<ViewerContext>,
+    pub profile: User,
+    pub users: Vec<User>,
+}
+
+#[derive(Template)]
+#[template(path = "following.html")]
+pub struct FollowingTemplate {
+    pub site_name: String,
+    pub site_description: String,
+    pub viewer: Option<ViewerContext>,
+    pub profile: User,
+    pub users: Vec<User>,
+}
+
+#[derive(Template)]
+#[template(path = "hashtag.html")]
+pub struct HashtagTemplate {
+    pub site_name: String,
+    pub site_description: String,
+    pub viewer: Option<ViewerContext>,
+    pub tag: String,
+    pub statuses: Vec<StatusView>,
+    pub total: i64,
+    pub page: u32,
+    pub total_pages: u32,
+}
+
+#[derive(Template)]
+#[template(path = "me_edit.html")]
+pub struct MeEditTemplate {
+    pub site_name: String,
+    pub site_description: String,
+    pub viewer: Option<ViewerContext>,
+    pub csrf_token: String,
+    pub display_name: String,
+    pub bio: String,
+    pub avatar_url: Option<String>,
+    pub message: Option<String>,
+}
+
+// ===== Blog (moved under templates/blog/) =====
+
+#[derive(Template)]
+#[template(path = "blog/index.html")]
 pub struct IndexTemplate {
     pub site_name: String,
     pub site_description: String,
@@ -18,7 +147,7 @@ pub struct IndexTemplate {
 }
 
 #[derive(Template)]
-#[template(path = "post_detail.html")]
+#[template(path = "blog/post_detail.html")]
 pub struct PostDetailTemplate {
     pub site_name: String,
     pub site_description: String,
@@ -29,7 +158,7 @@ pub struct PostDetailTemplate {
 }
 
 #[derive(Template)]
-#[template(path = "category.html")]
+#[template(path = "blog/category.html")]
 pub struct CategoryTemplate {
     pub site_name: String,
     pub site_description: String,
@@ -40,7 +169,7 @@ pub struct CategoryTemplate {
 }
 
 #[derive(Template)]
-#[template(path = "tag.html")]
+#[template(path = "blog/tag.html")]
 pub struct TagTemplate {
     pub site_name: String,
     pub site_description: String,
@@ -51,7 +180,7 @@ pub struct TagTemplate {
 }
 
 #[derive(Template)]
-#[template(path = "archive.html")]
+#[template(path = "blog/archive.html")]
 pub struct ArchiveTemplate {
     pub site_name: String,
     pub site_description: String,
@@ -59,7 +188,7 @@ pub struct ArchiveTemplate {
 }
 
 #[derive(Template)]
-#[template(path = "search.html")]
+#[template(path = "blog/search.html")]
 pub struct SearchTemplate {
     pub site_name: String,
     pub site_description: String,
@@ -68,18 +197,20 @@ pub struct SearchTemplate {
 }
 
 #[derive(Template)]
-#[template(path = "about.html")]
+#[template(path = "blog/about.html")]
 pub struct AboutTemplate {
     pub site_name: String,
     pub site_description: String,
 }
 
 #[derive(Template)]
-#[template(path = "404.html")]
+#[template(path = "blog/404.html")]
 pub struct NotFoundTemplate {
     pub site_name: String,
     pub site_description: String,
 }
+
+// ===== Feeds =====
 
 #[derive(Debug, Clone)]
 pub struct FeedItem {
@@ -111,6 +242,8 @@ pub struct SitemapTemplate {
     pub site_url: String,
     pub items: Vec<SitemapItem>,
 }
+
+// ===== Admin =====
 
 #[derive(Template)]
 #[template(path = "admin/login.html")]
@@ -197,6 +330,18 @@ pub struct AdminSettingsTemplate {
     pub csrf_token: String,
     pub settings: SiteSettings,
     pub message: Option<String>,
+}
+
+#[derive(Template)]
+#[template(path = "admin/users.html")]
+pub struct AdminUsersTemplate {
+    pub site_name: String,
+    pub site_description: String,
+    pub username: String,
+    pub csrf_token: String,
+    pub users: Vec<User>,
+    pub message: Option<String>,
+    pub current_user_id: i64,
 }
 
 pub struct HtmlTemplate<T: Template>(pub T);

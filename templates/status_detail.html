@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Status by @{{ root.author.username }} - {{ site_name }}{% endblock %}
+
+{% block nav_user %}{% match viewer %}{% when Some with (v) %}<a href="/u/{{ v.username }}">@{{ v.username }}</a> · <a href="/me/edit">Edit</a> · <form class="inline-form" method="post" action="/admin/logout"><input type="hidden" name="csrf_token" value="{{ v.csrf_token }}"><button type="submit" class="link-button">Sign out</button></form>{% when None %}<a href="/admin/login">Sign in</a>{% endmatch %}{% endblock %}
+
+{% block content %}
+<section class="status-thread" aria-label="Thread">
+    {% let view = root %}
+    {% include "_status_card.html" %}
+</section>
+
+<section class="reply-composer">
+    <h2>Reply</h2>
+    {% include "_composer.html" %}
+</section>
+
+<section class="status-feed status-replies" aria-label="Replies">
+    {% for view in replies %}
+    {% include "_status_card.html" %}
+    {% else %}
+    <p class="muted">No replies yet.</p>
+    {% endfor %}
+</section>
+{% endblock %}

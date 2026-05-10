@@ -1,31 +1,28 @@
 {% extends "base.html" %}
 
-{% block title %}{{ category.name }} - {{ site_name }}{% endblock %}
+{% block title %}{{ tag.name }} - {{ site_name }}{% endblock %}
 
 {% block content %}
 <section class="page-heading">
-    <p class="eyebrow">Category</p>
-    <h1>{{ category.name }}</h1>
-    {% match category.description %}
-    {% when Some with (description) %}
-    <p>{{ description }}</p>
-    {% when None %}
-    {% endmatch %}
+    <p class="eyebrow">Tag</p>
+    <h1>#{{ tag.name }}</h1>
 </section>
 
 <section class="post-list">
     {% for item in posts %}
     <article class="post-card">
-        <h2><a href="/posts/{{ item.post.slug }}">{{ item.post.title }}</a></h2>
+        <h2><a href="/blog/posts/{{ item.post.slug }}">{{ item.post.title }}</a></h2>
         {% match item.post.summary %}
         {% when Some with (summary) %}
         <p>{{ summary }}</p>
         {% when None %}
         {% endmatch %}
-        <div class="tag-row">
-            {% for tag in item.tags %}
-            <a href="/tags/{{ tag.slug }}">#{{ tag.name }}</a>
-            {% endfor %}
+        <div class="meta">
+            {% match item.category %}
+            {% when Some with (category) %}
+            <a href="/blog/categories/{{ category.slug }}">{{ category.name }}</a>
+            {% when None %}
+            {% endmatch %}
         </div>
     </article>
     {% endfor %}

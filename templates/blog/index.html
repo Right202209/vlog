@@ -13,7 +13,7 @@
     <section class="post-list" aria-label="Posts">
         {% for item in posts %}
         <article class="post-card">
-            <h2><a href="/posts/{{ item.post.slug }}">{{ item.post.title }}</a></h2>
+            <h2><a href="/blog/posts/{{ item.post.slug }}">{{ item.post.title }}</a></h2>
             {% match item.post.summary %}
             {% when Some with (summary) %}
             <p>{{ summary }}</p>
@@ -27,13 +27,13 @@
                 {% endmatch %}
                 {% match item.category %}
                 {% when Some with (category) %}
-                <a href="/categories/{{ category.slug }}">{{ category.name }}</a>
+                <a href="/blog/categories/{{ category.slug }}">{{ category.name }}</a>
                 {% when None %}
                 {% endmatch %}
             </div>
             <div class="tag-row">
                 {% for tag in item.tags %}
-                <a href="/tags/{{ tag.slug }}">#{{ tag.name }}</a>
+                <a href="/blog/tags/{{ tag.slug }}">#{{ tag.name }}</a>
                 {% endfor %}
             </div>
         </article>
@@ -49,7 +49,7 @@
             <h2>Categories</h2>
             <ul>
                 {% for category in categories %}
-                <li><a href="/categories/{{ category.slug }}">{{ category.name }}</a></li>
+                <li><a href="/blog/categories/{{ category.slug }}">{{ category.name }}</a></li>
                 {% endfor %}
             </ul>
         </section>
@@ -57,7 +57,7 @@
             <h2>Tags</h2>
             <div class="tag-cloud">
                 {% for tag in tags %}
-                <a href="/tags/{{ tag.slug }}">{{ tag.name }}</a>
+                <a href="/blog/tags/{{ tag.slug }}">{{ tag.name }}</a>
                 {% endfor %}
             </div>
         </section>

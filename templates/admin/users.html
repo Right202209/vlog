@@ -1,0 +1,81 @@
+{% extends "admin/_layout.html" %}
+
+{% block title %}Users - {{ site_name }}{% endblock %}
+
+{% block admin_content %}
+<div class="admin-heading">
+    <h1>Users</h1>
+</div>
+
+{% match message %}
+{% when Some with (m) %}
+<p class="info">{{ m }}</p>
+{% when None %}
+{% endmatch %}
+
+<form class="admin-form" method="post" action="/admin/users">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="row">
+        <label>
+            Username
+            <input type="text" name="username" required maxlength="40">
+        </label>
+        <label>
+            Password
+            <input type="password" name="password" required minlength="8">
+        </label>
+        <label>
+            Role
+            <select name="role">
+                <option value="user" selected>user</option>
+                <option value="admin">admin</option>
+            </select>
+        </label>
+    </div>
+    <button type="submit" class="primary">Create user</button>
+</form>
+
+<table class="admin-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Display</th>
+            <th>Role</th>
+            <th>Created</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in users %}
+        <tr>
+            <td>{{ u.id }}</td>
+            <td><a href="/u/{{ u.username }}">@{{ u.username }}</a></td>
+            <td>{{ u.display_label() }}</td>
+            <td>{{ u.role }}</td>
+            <td>{{ u.created_at }}</td>
+            <td>
+                <div class="row-actions">
+                    <form class="inline" method="post" action="/admin/users/{{ u.id }}/role">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <input type="hidden" name="role" value="{% if u.is_admin() %}user{% else %}admin{% endif %}">
+                        <button type="submit">{% if u.is_admin() %}Demote{% else %}Promote{% endif %}</button>
+                    </form>
+                    <form class="inline" method="post" action="/admin/users/{{ u.id }}/reset">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <input type="text" name="new_password" placeholder="new password" minlength="8" required>
+                        <button type="submit">Reset</button>
+                    </form>
+                    {% if u.id != current_user_id %}
+                    <form class="inline" method="post" action="/admin/users/{{ u.id }}/delete" onsubmit="return confirm('Delete @{{ u.username }} and all their statuses?');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <button type="submit" class="danger">Delete</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
