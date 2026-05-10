@@ -16,7 +16,7 @@
     <meta name="twitter:card" content="summary">
     {% block head_extra %}{% endblock %}
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
     <header class="site-header">
         <div class="wrap header-inner">
             <a class="brand" href="/">
@@ -36,7 +36,12 @@
     </header>
 
     <main class="wrap main">
-        {% block content %}{% endblock %}
+        <div class="app-grid">
+            <div class="main-col">
+                {% block content %}{% endblock %}
+            </div>
+            {% block right_rail %}{% endblock %}
+        </div>
     </main>
 
     <footer class="site-footer">

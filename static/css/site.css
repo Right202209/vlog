@@ -1390,3 +1390,137 @@ button,
         display: none;
     }
 }
+
+/* ===== App shell (microblog 2-column with right rail) ===== */
+.app-grid {
+    display: block;
+}
+
+.main-col {
+    min-width: 0;
+}
+
+body.with-rails .app-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 28px;
+    align-items: start;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+body.with-rails .main-col {
+    max-width: 640px;
+    width: 100%;
+    justify-self: end;
+}
+
+.rail-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: sticky;
+    top: 92px;
+}
+
+.rail-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-sm);
+}
+
+.rail-heading {
+    margin: 0 0 8px;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    font-weight: 700;
+}
+
+.rail-text {
+    margin: 0 0 10px;
+    color: var(--text);
+    font-size: 0.94rem;
+    line-height: 1.55;
+}
+
+.rail-link {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.rail-link a {
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.rail-link a:hover {
+    color: var(--accent-deep);
+}
+
+.rail-tags {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.rail-tag {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: var(--radius-pill);
+    padding: 4px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 150ms ease, color 150ms ease;
+}
+
+.rail-tag:hover {
+    background: var(--accent);
+    color: #fff;
+}
+
+.rail-meta-card {
+    padding: 10px 14px;
+}
+
+.rail-meta {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+.rail-meta a {
+    color: var(--muted);
+    text-decoration: none;
+    margin: 0 4px;
+    transition: color 150ms ease;
+}
+
+.rail-meta a:hover {
+    color: var(--accent);
+}
+
+@media (max-width: 1024px) {
+    body.with-rails .app-grid {
+        display: block;
+        max-width: none;
+    }
+    body.with-rails .main-col {
+        max-width: none;
+        justify-self: stretch;
+    }
+    .rail-stack {
+        position: static;
+        margin-top: 22px;
+    }
+}
