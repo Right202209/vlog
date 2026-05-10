@@ -102,14 +102,14 @@ async fn upload_inner(headers: HeaderMap, mut multipart: Multipart) -> Result<Re
 
         let mut file = tokio::fs::File::create(&temp_path).await?;
         let mut bytes = 0usize;
-        while let Some(chunk) = (match field.chunk().await {
+        while let Some(chunk) = match field.chunk().await {
             Ok(chunk) => chunk,
             Err(error) => {
                 drop(file);
                 let _ = tokio::fs::remove_file(&temp_path).await;
                 return Err(AppError::BadRequest(format!("multipart error: {error}")));
             }
-        }) {
+        } {
             bytes = match bytes.checked_add(chunk.len()) {
                 Some(bytes) => bytes,
                 None => {

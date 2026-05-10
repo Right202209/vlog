@@ -6,7 +6,7 @@
 
 {% block content %}
 <section class="status-thread" aria-label="Thread">
-    {% let view = root %}
+    {% let view = root.clone() %}
     {% include "_status_card.html" %}
 </section>
 
