@@ -14,6 +14,19 @@ pub async fn list_all(pool: &SqlitePool) -> sqlx::Result<Vec<Category>> {
     .await
 }
 
+pub async fn find_by_id(pool: &SqlitePool, id: i64) -> sqlx::Result<Option<Category>> {
+    sqlx::query_as::<_, Category>(
+        r#"
+        SELECT id, name, slug, description
+        FROM categories
+        WHERE id = ?
+        "#,
+    )
+    .bind(id)
+    .fetch_optional(pool)
+    .await
+}
+
 pub async fn find_by_slug(pool: &SqlitePool, slug: &str) -> sqlx::Result<Option<Category>> {
     sqlx::query_as::<_, Category>(
         r#"
@@ -39,5 +52,72 @@ pub async fn find_by_post_id(pool: &SqlitePool, post_id: i64) -> sqlx::Result<Op
     .bind(post_id)
     .fetch_optional(pool)
     .await
+}
+
+pub async fn create(
+    pool: &SqlitePool,
+    name: &str,
+    slug: &str,
+    description: Option<&str>,
+) -> sqlx::Result<i64> {
+    let row: (i64,) = sqlx::query_as(
+        r#"
+        INSERT INTO categories (name, slug, description)
+        VALUES (?, ?, ?)
+        RETURNING id
+        "#,
+    )
+    .bind(name)
+    .bind(slug)
+    .bind(description)
+    .fetch_one(pool)
+    .await?;
+    Ok(row.0)
+}
+
+pub async fn update(
+    pool: &SqlitePool,
+    id: i64,
+    name: &str,
+    slug: &str,
+    description: Option<&str>,
+) -> sqlx::Result<()> {
+    sqlx::query(
+        r#"
+        UPDATE categories
+        SET name = ?, slug = ?, description = ?
+        WHERE id = ?
+        "#,
+    )
+    .bind(name)
+    .bind(slug)
+    .bind(description)
+    .bind(id)
+    .execute(pool)
+    .await?;
+    Ok(())
+}
+
+pub async fn delete(pool: &SqlitePool, id: i64) -> sqlx::Result<()> {
+    sqlx::query("DELETE FROM categories WHERE id = ?")
+        .bind(id)
+        .execute(pool)
+        .await?;
+    Ok(())
+}
+
+pub async fn slug_exists(pool: &SqlitePool, slug: &str, exclude_id: Option<i64>) -> sqlx::Result<bool> {
+    let (count,): (i64,) = match exclude_id {
+        Some(id) => sqlx::query_as("SELECT COUNT(*) FROM categories WHERE slug = ? AND id <> ?")
+            .bind(slug)
+            .bind(id)
+            .fetch_one(pool)
+            .await?,
+        None => sqlx::query_as("SELECT COUNT(*) FROM categories WHERE slug = ?")
+            .bind(slug)
+            .fetch_one(pool)
+            .await?,
+    };
+    Ok(count > 0)
 }
 
