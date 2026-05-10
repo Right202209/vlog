@@ -340,6 +340,18 @@ migrations/
 - 完成日志、错误页、限流与基础安全策略。
 - 补充测试、部署文档与运行手册。
 
+### M4：微博 / X / GNU social 风格微博
+
+- 在保留博客的前提下，将站点首页改造为微博式时间线（Timeline）。
+- 引入多用户：管理员可创建账号，公开侧不开放注册。
+- 引入用户资料（display_name、bio、avatar）与角色（user / admin）。
+- 引入 statuses 主体表，支持回复（threaded reply）、点赞（like）、转发与引用转发（repost / quote）、关注与首页时间线（follow + home timeline）。
+- 状态正文沿用 Markdown 渲染，并在渲染后自动解析 `@username` / `#hashtag` 为站内链接。
+- 路由调整：`/` 改为全站时间线，`/home` 为关注流（需登录），`/u/{username}` 为个人主页，`/s/{id}` 为状态详情，`/h/{tag}` 为话题页；原博客迁移到 `/blog/*` 并对历史路径返回 301。
+- 不在本里程碑内：通知、全文检索、话题索引表、ActivityPub、注册/邮件、图片处理、状态编辑、定时发布、私信、对 compose/like 的限流、shadow-ban 等审核工具。
+
+详细方案见 `docs/M4_MICROBLOG.md`。
+
 ## 14. 验收标准
 
 - 管理员可以登录后台并完成一篇文章从创建到发布的全过程。
@@ -378,3 +390,75 @@ migrations/
 - Volo-HTTP 响应：https://www.cloudwego.io/docs/volo/volo-http/tutorials/response/
 - Volo-HTTP 中间件：https://www.cloudwego.io/docs/volo/volo-http/tutorials/middleware/
 - Volo-HTTP 静态文件：https://www.cloudwego.io/docs/volo/volo-http/tutorials/static-fs/
+
+## 17. M4：微博 / X 风格微博详细范围
+
+### 17.1 用户与角色
+
+- `users` 增加 `display_name`、`bio`、`avatar_url`、`role`（`user` / `admin`，默认 `user`，启动时自举的管理员标记为 `admin`）。
+- 注册流程：仅管理员后台 `/admin/users` 可创建账号、重置密码、调整角色、删除账号。公开侧没有注册入口。
+- 鉴权：`auth_guard::require_user` 用于普通用户写操作，`auth_guard::require_admin` 用于后台。两者共用 cookie + CSRF 模型。
+
+### 17.2 内容模型
+
+- 新表 `statuses(id, user_id, content_md, content_html, parent_id NULL, repost_of_id NULL, reply_count, like_count, repost_count, created_at)`：
+  - `parent_id` 非空表示这是一条回复；
+  - `repost_of_id` 非空表示这是转发；正文非空时即为引用转发；
+  - 三个 `*_count` 字段由 SQL 触发器在 `likes` / `follows` / `statuses` 子表插入删除时维护。
+- 新表 `status_assets(status_id, asset_id, sort)`：复用现有 `assets` 表与 `/static/uploads/` 目录。
+- 新表 `likes(user_id, status_id, created_at)`、`follows(follower_id, followee_id, created_at)`，主键均为复合主键。
+- 不在本里程碑引入 `status_hashtags` 表；话题页用 `LIKE '%#tag%'` 查询，与现博客搜索一致。
+
+### 17.3 路由
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| GET | `/` | 全站时间线（顶层 status，不含纯回复） |
+| GET | `/home` | 关注流（关注的人 + 自己），需登录 |
+| GET | `/s/{id}` | 状态详情 + 回复线程 |
+| POST | `/compose` | 发布顶层状态 |
+| POST | `/s/{id}/reply` | 回复 |
+| POST | `/s/{id}/like` / `/unlike` | 点赞 / 取消 |
+| POST | `/s/{id}/repost` / `/unrepost` | 转发 / 取消转发；正文非空即引用转发 |
+| POST | `/s/{id}/delete` | 仅作者可删 |
+| GET | `/u/{username}` | 个人主页 |
+| GET | `/u/{username}/followers` / `/following` | 粉丝 / 关注列表 |
+| POST | `/u/{username}/follow` / `/unfollow` | 关注 / 取消关注 |
+| GET | `/h/{tag}` | 话题聚合页 |
+| GET / POST | `/me/edit` | 编辑当前用户资料 |
+| POST | `/me/avatar` | 上传头像 |
+| GET / POST | `/admin/users` | 后台用户列表 / 创建 |
+| POST | `/admin/users/{id}/reset` | 重置密码 |
+| POST | `/admin/users/{id}/role` | 切换角色 |
+| POST | `/admin/users/{id}/delete` | 删除账号 |
+| GET | `/blog`、`/blog/posts/{slug}`、`/blog/categories/{slug}` 等 | 博客整体迁移到 `/blog/*` |
+| GET | 旧 `/posts/{slug}` 等 | 返回 301 到 `/blog/*` |
+| GET | `/rss.xml`、`/sitemap.xml`、`/robots.txt` | 维持原路径，仍服务博客内容 |
+
+### 17.4 模板与样式
+
+- 新增 `templates/timeline.html`、`home.html`、`status_detail.html`、`profile.html`、`followers.html`、`following.html`、`hashtag.html`、`me_edit.html`、`_status_card.html`、`_composer.html`、`admin/users.html`。
+- 旧博客模板移动到 `templates/blog/`，`#[template(path = "...")]` 同步调整。
+- `static/css/site.css` 追加 `===== Microblog (M4) =====` 段落，沿用现有调色板（`--accent`、`--accent-2`、`--soft`、`--surface`、`--line`），不引入字体或图标库。
+
+### 17.5 非目标（M4 内不做）
+
+- 通知系统（站内 / 邮件）。
+- 状态全文检索；话题页用 `LIKE`。
+- 真正的话题索引表与字符级分词。
+- WebSocket / SSE 实时刷新。
+- ActivityPub / Diaspora 联邦。
+- 公开注册、邮箱验证、邮箱找回密码。
+- 图片裁剪、压缩、EXIF 清理、缩略图。
+- 状态编辑（X 风格的可编辑窗口）；本期仅支持删除。
+- 草稿、定时发布、私信、列表、收藏。
+- 对 compose / like / follow 的限流（仅有登录限流）。
+- 隐藏 / 锁定 / 影子封禁等审核工具。
+
+### 17.6 验收标准
+
+- 管理员可以创建一名普通用户、用普通用户登录后发布状态、回复、点赞、转发、引用转发、关注其他账号，并在 `/home` 看到关注的人的状态。
+- `/u/{username}`、`/s/{id}`、`/h/{tag}` 都能正常渲染。
+- 旧博客 `/posts/{slug}`、`/categories/{slug}` 等返回 301，`/blog/*` 内容完整。
+- 所有写接口仍受 CSRF 校验保护；非管理员无法访问 `/admin/*`。
+- `cargo check` 全量通过。

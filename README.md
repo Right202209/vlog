@@ -2,38 +2,46 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-Volo Blog is a lightweight Markdown blog implemented in Rust with CloudWeGo Volo-HTTP, SQLite, SQLx migrations, and Askama server-side templates.
+Volo Blog is a single-binary Rust site that pairs a **Weibo / X style microblog timeline** with a long-form **Markdown blog**, built on CloudWeGo Volo-HTTP, SQLite, SQLx migrations, and Askama server-side templates.
 
-The codebase covers M1 (read-only public surfaces), M2 (admin auth, content CRUD, uploads, settings, render-on-save Markdown), and the M3 launch-prep slice for feeds (RSS / sitemap / robots), SEO meta (Open Graph + canonical), login rate-limiting, and deployment artifacts (Dockerfile, systemd unit, deployment runbook). Integration tests, a custom 500 page, structured request access logs, and bridging dynamic `site_settings` into the public read path remain open.
+The codebase covers M1 (read-only public blog), M2 (admin auth, content CRUD, uploads, settings, render-on-save Markdown), the M3 launch-prep slice for feeds (RSS / sitemap / robots), SEO meta (Open Graph + canonical), login rate-limiting, deployment artifacts (Dockerfile, systemd unit, deployment runbook), and **M4 (microblog: multi-user accounts created by admin, statuses with replies / likes / reposts / quote-reposts / follows, profiles, hashtag pages — coexisting with the blog under `/blog/*`)**. Integration tests, a custom 500 page, structured request access logs, status notifications, and bridging dynamic `site_settings` into the public read path remain open.
 
 ## Current Scope
 
-Implemented public surfaces:
+Implemented microblog surfaces (M4):
 
-- `GET /` and `GET /posts` for the latest published posts.
-- `GET /posts/{slug}` for post detail (Open Graph + canonical link).
-- `GET /categories/{slug}` for category pages.
-- `GET /tags/{slug}` for tag pages.
-- `GET /archive` for month-grouped archives.
-- `GET /search?q=...` for basic title, summary, and tag-name search.
-- `GET /about` for the about page.
-- `GET /rss.xml` for the RSS 2.0 feed (latest 20 published posts, RFC 2822 dates).
-- `GET /sitemap.xml` for the XML sitemap of all published posts plus core pages.
-- `GET /robots.txt` (dynamic — references the configured `SITE_URL`).
-- `GET /static/css/site.css` for the site stylesheet.
-- `GET /static/uploads/{file}` for uploaded media.
+- `GET /` — global timeline of top-level statuses (composer at the top when signed in).
+- `GET /home` — home timeline of statuses from accounts you follow plus your own (requires sign-in).
+- `GET /s/{id}` — status detail with reply thread.
+- `POST /compose`, `POST /s/{id}/(reply|like|unlike|repost|unrepost|delete)` — write endpoints (require sign-in + CSRF).
+- `GET /u/{username}`, `GET /u/{username}/(followers|following)`, `POST /u/{username}/(follow|unfollow)` — profile and follow graph.
+- `GET /h/{tag}` — hashtag aggregation page (LIKE-based).
+- `GET /me/edit`, `POST /me/edit`, `POST /me/avatar` — self-service profile + avatar.
+- `GET/POST /admin/users`, `POST /admin/users/{id}/(reset|role|delete)` — admin user management (no public sign-up).
+
+Implemented blog surfaces (M1, moved under `/blog/*` in M4):
+
+- `GET /blog` and `GET /blog/posts/{slug}` for the latest published posts and post detail (Open Graph + canonical link).
+- `GET /blog/categories/{slug}`, `GET /blog/tags/{slug}` for taxonomy pages.
+- `GET /blog/archive` for month-grouped archives.
+- `GET /blog/search?q=...` for basic title, summary, and tag-name search.
+- `GET /blog/about` for the about page.
+- `GET /rss.xml`, `GET /sitemap.xml`, `GET /robots.txt` (RSS / sitemap link to `/blog/posts/{slug}`).
+- `GET /static/css/site.css`, `GET /static/uploads/{file}`.
+- Backwards-compat `301` redirects from `/posts`, `/posts/{slug}`, `/categories/{slug}`, `/tags/{slug}`, `/archive`, `/search`, `/about` to their `/blog/...` targets.
 - Fallback 404 page.
 
-Implemented admin surfaces (M2):
+Implemented admin surfaces (M2 + M4):
 
 - `GET/POST /admin/login` and `POST /admin/logout` with argon2 password hashing and a SQLite-backed session cookie (`vlog_session`).
 - `GET /admin` dashboard with post / category / tag counts.
 - `GET/POST /admin/posts` and friends for full post CRUD, draft/publish toggle, delete, and Markdown render-on-save.
 - `GET/POST /admin/categories` and `GET/POST /admin/tags` for CRUD on taxonomy.
 - `GET/POST /admin/settings` for editable site settings (rendered into the `site_settings` table).
-- `POST /admin/upload` accepts `multipart/form-data` image uploads (PNG/JPEG/GIF/WebP, max 5 MiB, streamed to a temp file with a chunked size cap) and writes them to `storage/uploads/`, exposed under `/static/uploads/`.
+- `POST /admin/upload` accepts `multipart/form-data` image uploads (PNG/JPEG/GIF/WebP, max 5 MiB, streamed to a temp file with a chunked size cap) and writes them to `storage/uploads/`, exposed under `/static/uploads/`. The same pipeline backs status attachments and avatars via `services::upload_service`.
+- `GET/POST /admin/users` and friends for admin-only user management (create accounts, reset passwords, toggle role, delete).
 
-All admin write endpoints (including `/admin/logout`) require the session cookie and a per-session `csrf_token` form field. CSRF is checked in constant time. The `vlog_session` cookie is `HttpOnly; SameSite=Lax`, and gains the `Secure` attribute when `SESSION_COOKIE_SECURE=1`. HTML responses set `X-Content-Type-Options: nosniff` and `Referrer-Policy: same-origin`; admin pages also send a strict default-source CSP.
+All admin write endpoints (including `/admin/logout`) require the session cookie and a per-session `csrf_token` form field. CSRF is checked in constant time. The `vlog_session` cookie is `HttpOnly; SameSite=Lax`, and gains the `Secure` attribute when `SESSION_COOKIE_SECURE=1`. HTML responses set `X-Content-Type-Options: nosniff` and `Referrer-Policy: same-origin`; admin pages also send a strict default-source CSP. Microblog write endpoints share the same CSRF mechanism.
 
 Login is rate-limited per (lower-cased) username: 5 failed attempts within 60 s triggers a 60 s lockout. Lockouts are tracked in process memory and surface as HTTP 429 with `Retry-After`.
 
@@ -42,6 +50,7 @@ Not implemented yet:
 - Public read pages do not yet surface dynamic `site_settings` (still read from `config/default.toml`).
 - Custom 500 / 5xx error pages (errors return a plain-text body).
 - Structured per-request access log middleware (only `tracing` defaults are wired).
+- Notifications, full-text status search, real-time updates, federation, public sign-up, image processing, status edit, drafts, DMs.
 - Integration tests.
 
 ## Tech Stack
@@ -148,8 +157,9 @@ Migrations applied at startup (in order):
 
 - `0001_initial.sql` creates `posts`, `categories`, `tags`, `post_tags` and seeds two example posts.
 - `0002_admin.sql` creates `users`, `sessions`, `site_settings`, `assets` and seeds default `site_settings`.
+- `0003_microblog.sql` extends `users` with `display_name`, `bio`, `avatar_url`, `role`; creates `statuses`, `status_assets`, `likes`, `follows`; installs SQL triggers that maintain `statuses.reply_count` / `like_count` / `repost_count` automatically.
 
-The server also bootstraps a default admin user on first run if none exists (`admin` / `admin`, override with `ADMIN_USERNAME` / `ADMIN_PASSWORD`). **Change this password before exposing the server.**
+The server also bootstraps a default admin user on first run if none exists (`admin` / `admin`, override with `ADMIN_USERNAME` / `ADMIN_PASSWORD`). **Change this password before exposing the server.** Additional accounts after bootstrap are created from `/admin/users` rather than env vars.
 
 Local SQLite runtime files are ignored by Git:
 
@@ -166,16 +176,23 @@ Suggested verification once the toolchain is set up:
 ```bash
 cargo check
 cargo run
-# Public surfaces
+# Microblog
 curl -i http://127.0.0.1:8080/
-curl -i http://127.0.0.1:8080/posts/hello-world
-curl -i http://127.0.0.1:8080/categories/tech
-curl -i http://127.0.0.1:8080/tags/rust
-curl -i http://127.0.0.1:8080/archive
-curl -i "http://127.0.0.1:8080/search?q=hello"
-curl -i http://127.0.0.1:8080/about
+curl -i http://127.0.0.1:8080/u/admin
+curl -i http://127.0.0.1:8080/h/rust
+# Blog (moved under /blog)
+curl -i http://127.0.0.1:8080/blog
+curl -i http://127.0.0.1:8080/blog/posts/hello-world
+curl -i http://127.0.0.1:8080/blog/categories/tech
+curl -i http://127.0.0.1:8080/blog/tags/rust
+curl -i http://127.0.0.1:8080/blog/archive
+curl -i "http://127.0.0.1:8080/blog/search?q=hello"
+curl -i http://127.0.0.1:8080/blog/about
 curl -i http://127.0.0.1:8080/static/css/site.css
 curl -i http://127.0.0.1:8080/nope
+# Backwards-compat redirects (expect 301 + Location)
+curl -i http://127.0.0.1:8080/posts/hello-world
+curl -i http://127.0.0.1:8080/categories/tech
 # M3 feeds and SEO
 curl -i http://127.0.0.1:8080/rss.xml
 curl -i http://127.0.0.1:8080/sitemap.xml
@@ -242,3 +259,13 @@ M3: launch prep (in progress).
 - Login rate-limit, security headers, opt-in `Secure` cookie — done.
 - Dockerfile, systemd unit, deployment runbook — done.
 - Custom 500 page, structured access-log middleware, integration tests — outstanding.
+
+M4: microblog (Weibo / X / GNU social style).
+
+- Multi-user accounts (admin-created only — no public sign-up).
+- `users.role` (`user` / `admin`) with `auth_guard::require_user` vs `require_admin`.
+- `statuses` table with threaded replies, likes, reposts, and quote-reposts; counts maintained by SQL triggers.
+- `follows` graph + `/home` timeline of followed accounts.
+- Profiles (`/u/{username}`), hashtag pages (`/h/{tag}`), self-service profile + avatar (`/me/edit`, `/me/avatar`).
+- Microblog timeline now serves `/`; the original blog moved to `/blog/*` with `301` redirects from old paths.
+- See `docs/M4_MICROBLOG.md` for the full spec.

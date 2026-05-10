@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (M4 microblog)
+
+- New SQL migration `migrations/0003_microblog.sql`: extends `users` with `display_name`, `bio`, `avatar_url`, and a `role` column (`user` / `admin`, default `user`; existing rows backfilled to `admin`); creates `statuses`, `status_assets`, `likes`, `follows` tables with appropriate indexes and `CHECK` constraints; installs SQL triggers that maintain `statuses.reply_count` / `like_count` / `repost_count` on insert/delete of children.
+- Domain models for `Status`, `StatusView`, `Like`, `Follow`. Extended `User` with the four new profile/role fields.
+- New repositories: `status_repo` (create, find_by_id, list_global_timeline, list_user_timeline, list_home_timeline, list_replies, delete_own), `like_repo`, `follow_repo`, `status_asset_repo`. Extended `user_repo` with `find_by_username`, `list_all`, `create_with_password`, `update_profile`, `update_password`, `set_role`.
+- Renamed `services/admin_guard` → `services/auth_guard`. Split into `require_user(pool, headers)` (any active session) and `require_admin(pool, headers)` (calls `require_user`, then asserts `role == "admin"`). Every admin handler call site updated.
+- New services: `status_service` (compose orchestration: render Markdown via `utils::markdown::render`, then auto-link `@username` and `#hashtag` outside existing tags / code spans, persist status + status_assets in one transaction), `mention_service` (`@username` → user id lookup), `upload_service` (multipart-to-asset helper extracted from the admin upload handler so avatar uploads and status image attachments can share it).
+- New handler tree under `src/handlers/microblog/`: `timeline` (`/`, `/home`), `status` (`/s/{id}`, `/compose`, `/s/{id}/(reply|like|unlike|repost|unrepost|delete)`), `profile` (`/u/{username}`, `/followers`, `/following`, follow/unfollow), `hashtag` (`/h/{tag}`), `me` (`/me/edit`, `/me/avatar`).
+- Moved public blog read handlers under `src/handlers/blog/` (`post`, `search`, `about`). Old top-level paths (`/posts`, `/posts/{slug}`, `/categories/{slug}`, `/tags/{slug}`, `/archive`, `/search`, `/about`) now return 301 to `/blog/...` via `utils::response::redirect_permanent`. RSS, sitemap, and robots.txt continue to live at root and link to `/blog/posts/{slug}`.
+- New admin handler `admin/users` with list, create, reset-password, set-role, and delete operations (CSRF-protected).
+- New microblog templates under `templates/`: `timeline.html`, `home.html`, `status_detail.html`, `profile.html`, `followers.html`, `following.html`, `hashtag.html`, `me_edit.html`, plus `_status_card.html` and `_composer.html` partials. New admin template `templates/admin/users.html`. Existing public blog templates moved into `templates/blog/` and the `#[template(path=...)]` annotations in `src/templates.rs` updated.
+- Header navigation in `templates/base.html` updated: "Feed" → `/`, "Home" → `/home` (only when logged in), "Blog" → `/blog`, "Search" → `/blog/search`. Right side shows the signed-in user as `@{username}` linking to their profile, with edit + sign-out controls; logged-out visitors see a "Sign in" link.
+- New CSS section `===== Microblog (M4) =====` appended to `static/css/site.css` covering `.composer`, `.status-card` (+ author / body / actions / repost-banner), `.thread`, `.profile-header`, `.avatar`, `.follow-button(.following)`, `.hashtag-pill`. Stays within the existing palette; no new dependencies or fonts.
+- `utils/response.rs` gains a `redirect_permanent(path)` helper (`301 Moved Permanently`) used by the blog backwards-compat redirects.
+
+### Status
+
+- M4 microblog: source-complete in this turn. Multi-user (admin-created only), threaded replies, likes, reposts (incl. quote), follow + home timeline, profile pages, hashtag pages, admin user management, blog coexistence at `/blog/*` with 301 redirects from old paths. Public sign-up, notifications, full-text search across statuses, real-time updates, federation, image processing, status edit, drafts, DMs, and moderation tools beyond delete remain out of scope.
+- The `users.role` column defaults to `'user'`; existing users from M2 are migrated to `'admin'` so the bootstrap account keeps full access.
+- Verification of the new flows (compose, reply, like, repost, follow, profile, hashtag, blog redirects, CSRF) is the curl/browser checklist in `docs/DEVELOPMENT.md`. Automated tests are still M3.
+- End-to-end build (`cargo check` / `cargo run`) and route-level verification are intentionally left for the operator; nothing has been executed in this turn.
+
 ### Added (M2 admin and content management)
 
 - New SQL migration `migrations/0002_admin.sql` adding `users`, `sessions`, `site_settings`, and `assets` tables, and seeding default `site_settings` rows.
