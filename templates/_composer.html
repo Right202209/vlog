@@ -19,11 +19,12 @@
         <div class="composer-body">
             <textarea name="content_md" rows="3" placeholder="{{ composer_placeholder }}" maxlength="8192"></textarea>
             <div class="composer-actions">
-                <label class="composer-attach">
+                <label class="composer-attach" title="Attach images">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <input type="file" name="files" accept="image/*" multiple>
                     <span>Add images</span>
                 </label>
-                <button type="submit" class="primary">Post</button>
+                <button type="submit" class="primary composer-submit">Post</button>
             </div>
         </div>
     </div>

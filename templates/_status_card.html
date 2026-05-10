@@ -1,7 +1,9 @@
 <article class="status-card{% if view.status.is_repost() && !view.status.is_quote_repost() %} status-repost{% endif %}">
     {% if view.status.is_repost() && !view.status.is_quote_repost() %}
     <div class="repost-banner">
-        <a href="/u/{{ view.author.username }}">{{ view.author.display_label() }}</a> reposted
+        <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 4l4 4-4 4M3 8h18M7 20l-4-4 4-4M21 16H3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <a href="/u/{{ view.author.username }}">{{ view.author.display_label() }}</a>
+        <span>reposted</span>
     </div>
     {% match view.original %}
     {% when Some with (orig) %}
@@ -17,9 +19,9 @@
         <div class="status-body">
             <header class="status-header">
                 <a class="display-name" href="/u/{{ orig.author.username }}">{{ orig.author.display_label() }}</a>
-                <span class="muted">@{{ orig.author.username }}</span>
-                <span class="muted">·</span>
-                <a class="muted" href="/s/{{ orig.status.id }}"><time>{{ orig.status.created_at }}</time></a>
+                <span class="handle">@{{ orig.author.username }}</span>
+                <span class="dot">·</span>
+                <a class="time" href="/s/{{ orig.status.id }}"><time>{{ orig.status.created_at }}</time></a>
             </header>
             <div class="status-content">
                 {{ orig.status.content_html|safe }}
@@ -27,25 +29,34 @@
             {% if !orig.assets.is_empty() %}
             <div class="status-media count-{{ orig.assets.len() }}">
                 {% for a in orig.assets %}
-                <a href="{{ a.stored_path }}" class="media-tile"><img src="{{ a.stored_path }}" alt="{{ a.original_name }}"></a>
+                <a href="{{ a.stored_path }}" class="media-tile"><img src="{{ a.stored_path }}" alt="{{ a.original_name }}" loading="lazy"></a>
                 {% endfor %}
             </div>
             {% endif %}
             <footer class="status-actions">
-                <a class="action" href="/s/{{ orig.status.id }}">💬 {{ orig.status.reply_count }}</a>
+                <a class="action action-reply" href="/s/{{ orig.status.id }}" aria-label="Reply">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span class="count">{{ orig.status.reply_count }}</span>
+                </a>
                 {% match viewer %}
                 {% when Some with (vw) %}
                 <form class="action-form" method="post" action="/s/{{ orig.status.id }}/{% if orig.viewer_reposted %}unrepost{% else %}repost{% endif %}">
                     <input type="hidden" name="csrf_token" value="{{ vw.csrf_token }}">
-                    <button type="submit" class="action{% if orig.viewer_reposted %} active{% endif %}">🔁 {{ orig.status.repost_count }}</button>
+                    <button type="submit" class="action action-repost{% if orig.viewer_reposted %} active{% endif %}" aria-label="Repost">
+                        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 4l4 4-4 4M3 8h18M7 20l-4-4 4-4M21 16H3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <span class="count">{{ orig.status.repost_count }}</span>
+                    </button>
                 </form>
                 <form class="action-form" method="post" action="/s/{{ orig.status.id }}/{% if orig.viewer_liked %}unlike{% else %}like{% endif %}">
                     <input type="hidden" name="csrf_token" value="{{ vw.csrf_token }}">
-                    <button type="submit" class="action{% if orig.viewer_liked %} active{% endif %}">♥ {{ orig.status.like_count }}</button>
+                    <button type="submit" class="action action-like{% if orig.viewer_liked %} active{% endif %}" aria-label="Like">
+                        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="{% if orig.viewer_liked %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <span class="count">{{ orig.status.like_count }}</span>
+                    </button>
                 </form>
                 {% when None %}
-                <span class="action">🔁 {{ orig.status.repost_count }}</span>
-                <span class="action">♥ {{ orig.status.like_count }}</span>
+                <span class="action action-repost"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 4l4 4-4 4M3 8h18M7 20l-4-4 4-4M21 16H3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="count">{{ orig.status.repost_count }}</span></span>
+                <span class="action action-like"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="count">{{ orig.status.like_count }}</span></span>
                 {% endmatch %}
             </footer>
         </div>
@@ -66,9 +77,9 @@
         <div class="status-body">
             <header class="status-header">
                 <a class="display-name" href="/u/{{ view.author.username }}">{{ view.author.display_label() }}</a>
-                <span class="muted">@{{ view.author.username }}</span>
-                <span class="muted">·</span>
-                <a class="muted" href="/s/{{ view.status.id }}"><time>{{ view.status.created_at }}</time></a>
+                <span class="handle">@{{ view.author.username }}</span>
+                <span class="dot">·</span>
+                <a class="time" href="/s/{{ view.status.id }}"><time>{{ view.status.created_at }}</time></a>
             </header>
             <div class="status-content">
                 {{ view.status.content_html|safe }}
@@ -76,44 +87,55 @@
             {% if !view.assets.is_empty() %}
             <div class="status-media count-{{ view.assets.len() }}">
                 {% for a in view.assets %}
-                <a href="{{ a.stored_path }}" class="media-tile"><img src="{{ a.stored_path }}" alt="{{ a.original_name }}"></a>
+                <a href="{{ a.stored_path }}" class="media-tile"><img src="{{ a.stored_path }}" alt="{{ a.original_name }}" loading="lazy"></a>
                 {% endfor %}
             </div>
             {% endif %}
             {% if view.status.is_quote_repost() %}
             {% match view.original %}
             {% when Some with (orig) %}
-            <div class="quoted">
+            <a class="quoted" href="/s/{{ orig.status.id }}">
                 <header class="quoted-header">
-                    <a class="display-name" href="/u/{{ orig.author.username }}">{{ orig.author.display_label() }}</a>
-                    <span class="muted">@{{ orig.author.username }}</span>
+                    <span class="display-name">{{ orig.author.display_label() }}</span>
+                    <span class="handle">@{{ orig.author.username }}</span>
                 </header>
                 <div class="status-content">{{ orig.status.content_html|safe }}</div>
-            </div>
+            </a>
             {% when None %}
             {% endmatch %}
             {% endif %}
             <footer class="status-actions">
-                <a class="action" href="/s/{{ view.status.id }}">💬 {{ view.status.reply_count }}</a>
+                <a class="action action-reply" href="/s/{{ view.status.id }}" aria-label="Reply">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span class="count">{{ view.status.reply_count }}</span>
+                </a>
                 {% match viewer %}
                 {% when Some with (vw) %}
                 <form class="action-form" method="post" action="/s/{{ view.status.id }}/{% if view.viewer_reposted %}unrepost{% else %}repost{% endif %}">
                     <input type="hidden" name="csrf_token" value="{{ vw.csrf_token }}">
-                    <button type="submit" class="action{% if view.viewer_reposted %} active{% endif %}">🔁 {{ view.status.repost_count }}</button>
+                    <button type="submit" class="action action-repost{% if view.viewer_reposted %} active{% endif %}" aria-label="Repost">
+                        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 4l4 4-4 4M3 8h18M7 20l-4-4 4-4M21 16H3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <span class="count">{{ view.status.repost_count }}</span>
+                    </button>
                 </form>
                 <form class="action-form" method="post" action="/s/{{ view.status.id }}/{% if view.viewer_liked %}unlike{% else %}like{% endif %}">
                     <input type="hidden" name="csrf_token" value="{{ vw.csrf_token }}">
-                    <button type="submit" class="action{% if view.viewer_liked %} active{% endif %}">♥ {{ view.status.like_count }}</button>
+                    <button type="submit" class="action action-like{% if view.viewer_liked %} active{% endif %}" aria-label="Like">
+                        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="{% if view.viewer_liked %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <span class="count">{{ view.status.like_count }}</span>
+                    </button>
                 </form>
                 {% if vw.user_id == view.status.user_id %}
                 <form class="action-form" method="post" action="/s/{{ view.status.id }}/delete" onsubmit="return confirm('Delete this status?');">
                     <input type="hidden" name="csrf_token" value="{{ vw.csrf_token }}">
-                    <button type="submit" class="action danger">Delete</button>
+                    <button type="submit" class="action action-danger" aria-label="Delete">
+                        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
                 </form>
                 {% endif %}
                 {% when None %}
-                <span class="action">🔁 {{ view.status.repost_count }}</span>
-                <span class="action">♥ {{ view.status.like_count }}</span>
+                <span class="action action-repost"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 4l4 4-4 4M3 8h18M7 20l-4-4 4-4M21 16H3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="count">{{ view.status.repost_count }}</span></span>
+                <span class="action action-like"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="count">{{ view.status.like_count }}</span></span>
                 {% endmatch %}
             </footer>
         </div>

@@ -6,25 +6,28 @@
 
 {% block content %}
 <section class="profile-header">
-    <div class="profile-avatar">
-        {% match profile.avatar_url %}
-        {% when Some with (a) %}
-        <img class="avatar avatar-lg" src="{{ a }}" alt="">
-        {% when None %}
-        <span class="avatar avatar-lg avatar-fallback">{{ profile.display_label()|truncate(1) }}</span>
-        {% endmatch %}
-    </div>
-    <div class="profile-info">
-        <h1>{{ profile.display_label() }}</h1>
-        <p class="muted">@{{ profile.username }}{% if profile.is_admin() %} · <span class="role-badge">admin</span>{% endif %}</p>
-        {% match profile.bio %}
-        {% when Some with (b) %}
-        <p class="profile-bio">{{ b }}</p>
-        {% when None %}
-        {% endmatch %}
-        <div class="profile-counts">
-            <a href="/u/{{ profile.username }}/following"><strong>{{ following_count }}</strong> Following</a>
-            <a href="/u/{{ profile.username }}/followers"><strong>{{ follower_count }}</strong> Followers</a>
+    <div class="profile-banner" aria-hidden="true"></div>
+    <div class="profile-body">
+        <div class="profile-avatar">
+            {% match profile.avatar_url %}
+            {% when Some with (a) %}
+            <img class="avatar avatar-lg" src="{{ a }}" alt="">
+            {% when None %}
+            <span class="avatar avatar-lg avatar-fallback">{{ profile.display_label()|truncate(1) }}</span>
+            {% endmatch %}
+        </div>
+        <div class="profile-info">
+            <h1>{{ profile.display_label() }}</h1>
+            <p class="profile-handle">@{{ profile.username }}{% if profile.is_admin() %} <span class="role-badge">admin</span>{% endif %}</p>
+            {% match profile.bio %}
+            {% when Some with (b) %}
+            <p class="profile-bio">{{ b }}</p>
+            {% when None %}
+            {% endmatch %}
+            <div class="profile-counts">
+                <a href="/u/{{ profile.username }}/following"><strong>{{ following_count }}</strong> Following</a>
+                <a href="/u/{{ profile.username }}/followers"><strong>{{ follower_count }}</strong> Followers</a>
+            </div>
         </div>
         {% match viewer %}
         {% when Some with (v) %}
@@ -34,7 +37,7 @@
             <button type="submit" class="follow-button{% if viewer_following %} following{% endif %}">{% if viewer_following %}Following{% else %}Follow{% endif %}</button>
         </form>
         {% else %}
-        <p><a class="button-link" href="/me/edit">Edit profile</a></p>
+        <a class="button-link button-ghost" href="/me/edit">Edit profile</a>
         {% endif %}
         {% when None %}
         {% endmatch %}

@@ -19,7 +19,10 @@
 <body>
     <header class="site-header">
         <div class="wrap header-inner">
-            <a class="brand" href="/">{{ site_name }}</a>
+            <a class="brand" href="/">
+                <span class="brand-mark" aria-hidden="true"></span>
+                <span class="brand-name">{{ site_name }}</span>
+            </a>
             <nav class="nav" aria-label="Primary">
                 <a href="/">Feed</a>
                 <a href="/home">Home</a>
