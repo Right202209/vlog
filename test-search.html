@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #222; color: #fff; }
+  .search-wrapper { position: relative; width: 240px; height: 44px; display: flex; justify-content: flex-end; }
+  .search-svg { position: absolute; right: 0; top: 0; width: 240px; height: 44px; pointer-events: none; }
+  
+  .search-path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    /* initial state: show circle only  (length ~125.6, offset 198) */
+    stroke-dasharray: 126 500;
+    stroke-dashoffset: -198;
+  }
+  
+  input {
+    width: 44px; height: 44px; border: none; outline: none; background: transparent; color: white;
+    padding-left: 20px; box-sizing: border-box; cursor: pointer;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  input:focus { width: 240px; cursor: text; }
+  input:focus ~ .search-svg .search-path {
+    stroke-dasharray: 198 500;
+    stroke-dashoffset: 0;
+  }
+
+  .icon { stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+</style>
+</head>
+<body>
+  <!-- Path logic: line from (2,42) to (198,42), then circle around (198,22) -->
+  <div class="search-wrapper">
+    <input type="text" placeholder="Search...">
+    <svg class="search-svg" viewBox="0 0 240 44">
+      <!-- M 2 42 L 218 42 = line of 216 -->
+      <!-- Center of circle at 218, 22. Radius 20 = circumference ~125.6 -->
+      <path class="search-path" d="M 2 42 L 218 42 A 20 20 0 0 0 218 2 A 20 20 0 0 0 218 42" />
+      <circle class="icon" cx="218" cy="22" r="6" />
+      <line class="icon" x1="222" y1="26" x2="228" y2="32" />
+    </svg>
+  </div>
+</body>
+</html>

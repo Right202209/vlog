@@ -8,12 +8,20 @@
     <h1>Search</h1>
 </section>
 
-<form class="search-form" action="/search" method="get">
-    <label for="q">Keyword</label>
-    <div>
-        <input id="q" type="search" name="q" value="{{ query }}" placeholder="Search posts">
-        <button type="submit">Search</button>
-    </div>
+<form class="expandable-search" action="/search" method="get">
+    <div class="search-line"></div>
+    <input id="q" type="search" name="q" value="{{ query }}" placeholder="Search..." required>
+    <button type="submit" aria-label="Search" class="search-btn">
+        <svg class="search-circle-svg" viewBox="0 0 44 44">
+            <!-- Outer circle that unrolls -->
+            <path class="search-circle-path" d="M 22 42 A 20 20 0 0 0 22 2 A 20 20 0 0 0 22 42" />
+            <!-- Inner magnifying glass icon stays at the right -->
+            <g class="inner-icon">
+                <circle cx="22" cy="20" r="5" fill="none" stroke="currentColor" stroke-width="2"/>
+                <line x1="26" y1="24" x2="32" y2="30" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </g>
+        </svg>
+    </button>
 </form>
 
 <section class="post-list search-results">
@@ -34,4 +42,3 @@
     {% endfor %}
 </section>
 {% endblock %}
-

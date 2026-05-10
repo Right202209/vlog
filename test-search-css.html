@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #222; color: #fff; font-family: sans-serif; }
+  
+  .expandable-search {
+      position: relative;
+      width: 44px;
+      height: 44px;
+      margin: 0 auto;
+      transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+      box-sizing: border-box;
+      border: 1px solid red; /* To visualize container bounds */
+  }
+  
+  .expandable-search:focus-within,
+  .expandable-search:hover,
+  .expandable-search:has(input:not(:placeholder-shown)) {
+      width: 300px;
+  }
+  
+  .search-line {
+      position: absolute;
+      bottom: 2px;
+      right: 22px;
+      left: 22px;
+      height: 2px;
+      background: yellow;
+  }
+
+  .search-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 44px;
+      height: 44px;
+      border: none;
+      background: transparent;
+      padding: 0;
+      color: white;
+  }
+
+  .search-circle-svg {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 44px;
+      height: 44px;
+      pointer-events: none;
+  }
+  
+  .search-circle-path {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-dasharray: 126 126;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .expandable-search:focus-within .search-circle-path,
+  .expandable-search:hover .search-circle-path,
+  .expandable-search:has(input:not(:placeholder-shown)) .search-circle-path {
+      stroke-dashoffset: 126;
+  }
+</style>
+</head>
+<body>
+  <div class="expandable-search">
+    <div class="search-line"></div>
+    <button class="search-btn">
+      <svg class="search-circle-svg" viewBox="0 0 44 44">
+        <path class="search-circle-path" d="M 22 42 A 20 20 0 0 0 22 2 A 20 20 0 0 0 22 42" stroke="cyan" />
+      </svg>
+    </button>
+  </div>
+</body>
+</html>
