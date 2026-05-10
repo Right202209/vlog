@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 volo = "0.12"
 volo-http = { version = "0.5", default-features = true }
-tokio = { version = "1", features = ["rt-multi-thread", "macros", "signal"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "signal", "fs", "io-util"] }
 sqlx = { version = "0.8", features = ["runtime-tokio", "sqlite", "chrono"] }
 askama = "0.12"
 pulldown-cmark = "0.10"
@@ -17,4 +17,6 @@ thiserror = "1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 once_cell = "1"
-
+argon2 = "0.5"
+rand = "0.8"
+hex = "0.4"

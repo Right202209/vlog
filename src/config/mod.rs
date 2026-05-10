@@ -7,6 +7,7 @@ use thiserror::Error;
 pub struct Settings {
     pub site_name: String,
     pub site_description: String,
+    pub site_url: String,
     pub host: String,
     pub port: u16,
     pub database_url: String,
@@ -35,6 +36,9 @@ pub fn load() -> Result<Settings, ConfigError> {
     if let Ok(value) = std::env::var("SITE_DESCRIPTION") {
         settings.site_description = value;
     }
+    if let Ok(value) = std::env::var("SITE_URL") {
+        settings.site_url = value;
+    }
     if let Ok(value) = std::env::var("HOST") {
         settings.host = value;
     }
@@ -45,9 +49,14 @@ pub fn load() -> Result<Settings, ConfigError> {
         settings.database_url = value;
     }
     if let Ok(value) = std::env::var("POSTS_PER_PAGE") {
-        settings.posts_per_page = value.parse()?;
+        settings.posts_per_page = value.parse::<u32>()?.clamp(1, 100);
     }
+    settings.posts_per_page = settings.posts_per_page.clamp(1, 100);
+    settings.site_url = normalize_site_url(&settings.site_url);
 
     Ok(settings)
 }
 
+fn normalize_site_url(raw: &str) -> String {
+    raw.trim().trim_end_matches('/').to_string()
+}

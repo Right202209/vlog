@@ -1,5 +1,6 @@
 site_name = "Volo Blog"
 site_description = "A lightweight Markdown blog powered by Volo-HTTP."
+site_url = "http://localhost:8080"
 host = "127.0.0.1"
 port = 8080
 database_url = "sqlite://vlog.db"
