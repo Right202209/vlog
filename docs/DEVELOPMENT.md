@@ -8,10 +8,10 @@ The repo uses `rust-toolchain.toml`:
 
 ```toml
 [toolchain]
-channel = "1.88"
+channel = "nightly"
 ```
 
-Rust 1.88 is currently required by the selected Volo dependency graph because `volo-http` uses Rust 2024 let chains. The application crate itself still uses Rust 2021 edition.
+The selected Volo dependency graph (notably `volo-http` 0.5 with edition 2024 and let-chain code) needs a recent compiler. The toolchain is pinned to `nightly` to keep dependency resolution and edition-2024 features happy. The application crate itself still uses Rust 2021 edition.
 
 ## Common Commands
 
