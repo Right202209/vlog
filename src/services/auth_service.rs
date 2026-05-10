@@ -87,13 +87,14 @@ pub async fn ensure_default_admin(pool: &SqlitePool) -> Result<(), AppError> {
     let hash = password::hash(&plain)?;
     let result = sqlx::query(
         r#"
-        INSERT INTO users (username, password_hash, created_at, updated_at)
-        SELECT ?, ?, datetime('now'), datetime('now')
+        INSERT INTO users (username, password_hash, created_at, updated_at, display_name, role)
+        SELECT ?, ?, datetime('now'), datetime('now'), ?, 'admin'
         WHERE NOT EXISTS (SELECT 1 FROM users)
         "#,
     )
     .bind(&username)
     .bind(&hash)
+    .bind(&username)
     .execute(pool)
     .await?;
 

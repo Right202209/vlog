@@ -16,9 +16,13 @@ impl AuthContext {
     pub fn csrf_token(&self) -> &str {
         &self.session.csrf_token
     }
+
+    pub fn is_admin(&self) -> bool {
+        self.user.is_admin()
+    }
 }
 
-pub async fn require_admin(pool: &SqlitePool, headers: &HeaderMap) -> Result<AuthContext, AppError> {
+pub async fn require_user(pool: &SqlitePool, headers: &HeaderMap) -> Result<AuthContext, AppError> {
     let cookies = parse_cookies(headers);
     let session_id = cookies.get(SESSION_COOKIE).ok_or(AppError::Unauthorized)?;
     let session = session_repo::find_active(pool, session_id)
@@ -28,6 +32,25 @@ pub async fn require_admin(pool: &SqlitePool, headers: &HeaderMap) -> Result<Aut
         .await?
         .ok_or(AppError::InvalidSession)?;
     Ok(AuthContext { user, session })
+}
+
+pub async fn current_user(
+    pool: &SqlitePool,
+    headers: &HeaderMap,
+) -> Result<Option<AuthContext>, AppError> {
+    match require_user(pool, headers).await {
+        Ok(ctx) => Ok(Some(ctx)),
+        Err(AppError::Unauthorized | AppError::InvalidSession) => Ok(None),
+        Err(error) => Err(error),
+    }
+}
+
+pub async fn require_admin(pool: &SqlitePool, headers: &HeaderMap) -> Result<AuthContext, AppError> {
+    let auth = require_user(pool, headers).await?;
+    if !auth.is_admin() {
+        return Err(AppError::Forbidden);
+    }
+    Ok(auth)
 }
 
 pub fn verify_csrf(auth: &AuthContext, submitted: Option<&str>) -> Result<(), AppError> {
