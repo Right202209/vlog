@@ -1,15 +1,21 @@
 pub mod asset;
 pub mod category;
+pub mod follow;
+pub mod like;
 pub mod post;
 pub mod session;
 pub mod site_settings;
+pub mod status;
 pub mod tag;
 pub mod user;
 
 pub use asset::Asset;
 pub use category::Category;
+pub use follow::Follow;
+pub use like::Like;
 pub use post::{ArchiveMonth, Post, PostListItem};
 pub use session::Session;
 pub use site_settings::SiteSettings;
+pub use status::{Status, StatusView};
 pub use tag::Tag;
 pub use user::User;
