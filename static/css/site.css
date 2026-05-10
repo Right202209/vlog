@@ -1,39 +1,39 @@
 :root {
     color-scheme: light;
-    /* 基础背景与表面颜色 (Background & Surface) */
-    --bg: #f8fafc;
-    --surface: rgba(255, 255, 255, 0.85); /* 半透明表面，用于毛玻璃效果 */
-    --surface-solid: #ffffff;
-    --surface-2: #f1f5f9;
+    /* 基础背景与表面颜色 (Background & Surface) - SwiftUI style */
+    --bg: #F2F2F7;
+    --surface: rgba(255, 255, 255, 0.75);
+    --surface-solid: #FFFFFF;
+    --surface-2: #E5E5EA;
     
     /* 文本颜色 (Text) */
-    --text: #1e293b;
-    --muted: #64748b;
+    --text: #000000;
+    --muted: #8E8E93;
     
     /* 边框与线条 (Borders & Lines) */
-    --line: rgba(226, 232, 240, 0.8);
-    --line-strong: #cbd5e1;
+    --line: rgba(60, 60, 67, 0.12);
+    --line-strong: rgba(60, 60, 67, 0.2);
     
-    /* 主题色 (Accent Color - 沉稳蓝色带点独特紫调) */
-    --accent: #5275b0;
-    --accent-deep: #3b5a8e;
-    --accent-soft: rgba(82, 117, 176, 0.12);
-    --accent-2: #8b5cf6; /* 独特的紫色点缀 */
+    /* 主题色 (Accent Color - iOS System Blue) */
+    --accent: #007AFF;
+    --accent-deep: #0056B3;
+    --accent-soft: rgba(0, 122, 255, 0.15);
+    --accent-2: #AF52DE; /* iOS System Purple */
     
     /* 交互颜色 (Interaction) */
-    --soft: #f1f5f9;
-    --like: #f43f5e;
-    --like-soft: rgba(244, 63, 94, 0.12);
+    --soft: #E5E5EA;
+    --like: #FF3B30; /* iOS System Red */
+    --like-soft: rgba(255, 59, 48, 0.15);
     
     /* 阴影效果 (Shadows) */
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.02);
-    --shadow-md: 0 8px 16px -4px rgba(82, 117, 176, 0.08), 0 4px 8px -4px rgba(0, 0, 0, 0.04);
-    --shadow-lg: 0 20px 25px -5px rgba(82, 117, 176, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
     
     /* 圆角 (Border Radius) */
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 20px; /* 更大的圆角显得更现代 */
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 22px;
     --radius-pill: 9999px;
 }
 
@@ -44,17 +44,10 @@
 body {
     margin: 0;
     background-color: var(--bg);
-    /* 独特的网格背景特效 (Subtle Grid Background) */
-    background-image: linear-gradient(var(--line) 1px, transparent 1px),
-                      linear-gradient(90deg, var(--line) 1px, transparent 1px);
-    background-size: 40px 40px;
-    background-position: center top;
     color: var(--text);
-    /* 现代无衬线字体排版 (Modern Sans-serif Typography) */
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
-        "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", ui-sans-serif,
-        system-ui, sans-serif;
-    line-height: 1.7;
+    /* 现代无衬线字体排版 (San Francisco System Font) */
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -75,7 +68,7 @@ a {
     top: 0;
     z-index: 20;
     border-bottom: 1px solid var(--line);
-    background: rgba(248, 250, 252, 0.65); /* 更通透的背景 */
+    background: rgba(255, 255, 255, 0.75);
     /* 强化的毛玻璃效果 (Enhanced Glassmorphism) */
     -webkit-backdrop-filter: saturate(180%) blur(20px);
     backdrop-filter: saturate(180%) blur(20px);
@@ -207,10 +200,7 @@ h2 {
     padding: 24px;
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
-    background: var(--surface);
-    /* 毛玻璃卡片效果 */
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
+    background: var(--surface-solid);
     box-shadow: var(--shadow-sm);
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
@@ -266,9 +256,7 @@ h2 {
     padding: 20px;
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
-    background: var(--surface);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
+    background: var(--surface-solid);
     box-shadow: var(--shadow-sm);
 }
 
@@ -364,13 +352,20 @@ input[type="search"] {
 button,
 .button-link {
     border: 0;
-    border-radius: 8px;
-    padding: 11px 16px;
+    border-radius: 14px;
+    padding: 12px 20px;
     background: var(--accent);
     color: #ffffff;
     font: inherit;
-    font-weight: 700;
+    font-weight: 600;
     text-decoration: none;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+button:active,
+.button-link:active {
+    opacity: 0.8;
+    transform: scale(0.98);
 }
 
 .pagination {
@@ -425,7 +420,7 @@ button,
 }
 
 .admin-nav {
-    background: var(--surface);
+    background: var(--surface-solid);
     border: 1px solid var(--line);
     border-radius: 10px;
     padding: 18px;
@@ -461,7 +456,7 @@ button,
 }
 
 .admin-main {
-    background: var(--surface);
+    background: var(--surface-solid);
     border: 1px solid var(--line);
     border-radius: 10px;
     padding: 24px;
@@ -625,7 +620,7 @@ button,
     gap: 8px;
     padding: 4px 6px 4px 10px;
     border-radius: var(--radius-pill);
-    background: var(--surface);
+    background: var(--surface-solid);
     border: 1px solid var(--line);
     color: var(--muted);
     font-size: 0.92rem;
@@ -679,7 +674,7 @@ button,
 
 /* ----- composer ----- */
 .composer {
-    background: var(--surface);
+    background: var(--surface-solid);
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
     padding: 16px 18px;
@@ -815,25 +810,22 @@ button,
 
 .composer-submit {
     border-radius: var(--radius-pill);
-    padding: 9px 24px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    /* 独特的渐变发光发布按钮 (Gradient glowing submit button) */
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    padding: 10px 24px;
+    font-weight: 600;
+    background: var(--accent);
     color: #fff;
     border: none;
-    box-shadow: 0 4px 12px rgba(82, 117, 176, 0.3);
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, opacity 0.2s ease;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
 .composer-submit:hover {
-    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4); /* 使用紫色点缀色的发光 */
-    transform: translateY(-2px);
-    opacity: 0.95;
+    opacity: 0.9;
 }
 
 .composer-submit:active {
-    transform: translateY(0) scale(0.98);
+    transform: scale(0.96);
+    opacity: 0.8;
 }
 
 .composer-signin {
@@ -865,7 +857,7 @@ button,
 
 .status-card {
     position: relative;
-    background: var(--surface);
+    background: var(--surface-solid);
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
     padding: 16px 18px;
@@ -1214,14 +1206,11 @@ button,
 /* ----- profile ----- */
 .profile-header {
     position: relative;
-    background: var(--surface);
+    background: var(--surface-solid);
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
     margin-bottom: 24px;
     overflow: hidden;
-    /* 增加毛玻璃和更精致的阴影 (Glassmorphism & refined shadow) */
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
     box-shadow: var(--shadow-sm);
 }
 
@@ -1319,24 +1308,27 @@ button,
 
 .follow-button,
 .button-ghost {
-    background: linear-gradient(135deg, var(--text), #334155);
-    color: #fff;
+    background: var(--surface-2);
+    color: var(--accent);
     border: none;
     border-radius: var(--radius-pill);
     padding: 8px 24px;
-    font-weight: 700;
+    font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(30, 41, 59, 0.2);
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background 0.2s ease;
+    transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease;
     text-decoration: none;
     display: inline-block;
 }
 
-.follow-button:hover {
-    /* 鼠标悬浮时变为独特的品牌主题渐变色 (Brand accent gradient on hover) */
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    box-shadow: 0 6px 14px rgba(82, 117, 176, 0.35);
-    transform: translateY(-2px);
+.follow-button:hover,
+.button-ghost:hover {
+    background: var(--line-strong);
+    opacity: 0.9;
+}
+
+.follow-button:active,
+.button-ghost:active {
+    transform: scale(0.96);
 }
 
 .follow-button.following {
@@ -1388,7 +1380,7 @@ button,
     display: flex;
     align-items: center;
     gap: 14px;
-    background: var(--surface);
+    background: var(--surface-solid);
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
     padding: 12px 14px;
@@ -1436,14 +1428,10 @@ button,
 
 /* ----- page heading polish on microblog pages ----- */
 .page-heading h1 {
-    font-size: clamp(1.7rem, 4vw, 2.6rem);
-    letter-spacing: -0.02em;
-    /* 大标题采用渐变色 (Gradient text for large headings) */
-    background: linear-gradient(135deg, var(--text), var(--accent-deep));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    display: inline-block;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text);
     margin-bottom: 8px;
 }
 
@@ -1528,14 +1516,11 @@ body.with-rails .main-col {
 }
 
 .rail-card {
-    background: var(--surface);
+    background: var(--surface-solid);
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
     padding: 20px 22px;
     box-shadow: var(--shadow-sm);
-    /* 增加毛玻璃效果 */
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
     transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
