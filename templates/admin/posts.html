@@ -1,0 +1,50 @@
+{% extends "admin/_layout.html" %}
+
+{% block title %}Posts · Admin · {{ site_name }}{% endblock %}
+
+{% block admin_content %}
+<header class="admin-heading">
+    <h1>Posts</h1>
+    <a class="button-link" href="/admin/posts/new">New post</a>
+</header>
+
+<table class="admin-table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Slug</th>
+            <th>Status</th>
+            <th>Updated</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for post in posts %}
+        <tr>
+            <td>{{ post.title }}</td>
+            <td><code>{{ post.slug }}</code></td>
+            <td>{{ post.status }}</td>
+            <td>{{ post.updated_at }}</td>
+            <td class="row-actions">
+                <a href="/admin/posts/{{ post.id }}/edit">Edit</a>
+                {% if post.status == "published" %}
+                <form action="/admin/posts/{{ post.id }}/unpublish" method="post" class="inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <button type="submit">Unpublish</button>
+                </form>
+                {% else %}
+                <form action="/admin/posts/{{ post.id }}/publish" method="post" class="inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <button type="submit">Publish</button>
+                </form>
+                {% endif %}
+                <form action="/admin/posts/{{ post.id }}/delete" method="post" class="inline" onsubmit="return confirm('Delete this post?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <button type="submit" class="danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "admin/_layout.html" %}
+
+{% block title %}{% if is_edit %}Edit post{% else %}New post{% endif %} · Admin · {{ site_name }}{% endblock %}
+
+{% block admin_content %}
+<header class="admin-heading">
+    <h1>{% if is_edit %}Edit post{% else %}New post{% endif %}</h1>
+</header>
+
+{% match error %}
+{% when Some with (error) %}
+<p class="error">{{ error }}</p>
+{% when None %}
+{% endmatch %}
+
+<form class="admin-form" method="post" action="{% match post_id %}{% when Some with (id) %}/admin/posts/{{ id }}{% when None %}/admin/posts{% endmatch %}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+    <label>
+        <span>Title</span>
+        <input type="text" name="title" value="{{ title }}" required>
+    </label>
+
+    <label>
+        <span>Slug</span>
+        <input type="text" name="slug" value="{{ slug }}" placeholder="auto-generated from title">
+    </label>
+
+    <label>
+        <span>Summary</span>
+        <textarea name="summary" rows="3" placeholder="Optional. Used in lists and SEO description.">{{ summary }}</textarea>
+    </label>
+
+    <label>
+        <span>Content (Markdown)</span>
+        <textarea name="content_md" rows="18" required>{{ content_md }}</textarea>
+    </label>
+
+    <label>
+        <span>Cover image URL</span>
+        <input type="text" name="cover_image" value="{{ cover_image }}" placeholder="/static/uploads/...">
+    </label>
+
+    <div class="row">
+        <label>
+            <span>Status</span>
+            <select name="status">
+                <option value="draft"{% if status == "draft" %} selected{% endif %}>Draft</option>
+                <option value="published"{% if status == "published" %} selected{% endif %}>Published</option>
+                <option value="archived"{% if status == "archived" %} selected{% endif %}>Archived</option>
+            </select>
+        </label>
+
+        <label>
+            <span>Category</span>
+            <select name="category_id">
+                <option value="0"{% if category_id == 0 %} selected{% endif %}>(none)</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}"{% if category.id == category_id %} selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+
+    <label>
+        <span>Tags (comma separated)</span>
+        <input type="text" name="tags" value="{{ tags_csv }}" placeholder="rust, web, volo">
+    </label>
+
+    {% if all_tags.len() > 0 %}
+    <p class="muted">Existing tags:
+        {% for tag in all_tags %}<code>{{ tag.name }}</code>{% if !loop.last %}, {% endif %}{% endfor %}
+    </p>
+    {% endif %}
+
+    <div class="row">
+        <button type="submit" class="primary">Save</button>
+        <a class="button-link" href="/admin/posts">Cancel</a>
+    </div>
+</form>
+{% endblock %}

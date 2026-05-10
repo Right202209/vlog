@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <p class="eyebrow">Admin</p>
+    <h1>Sign in</h1>
+</section>
+
+{% match error %}
+{% when Some with (error) %}
+<p class="error">{{ error }}</p>
+{% when None %}
+{% endmatch %}
+
+<form class="auth-form" action="/admin/login" method="post">
+    <label>
+        <span>Username</span>
+        <input type="text" name="username" value="{{ username }}" autocomplete="username" required>
+    </label>
+    <label>
+        <span>Password</span>
+        <input type="password" name="password" autocomplete="current-password" required>
+    </label>
+    <button type="submit">Sign in</button>
+</form>
+{% endblock %}

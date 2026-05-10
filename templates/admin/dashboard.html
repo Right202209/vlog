@@ -1,0 +1,29 @@
+{% extends "admin/_layout.html" %}
+
+{% block title %}Admin · {{ site_name }}{% endblock %}
+
+{% block admin_content %}
+<header class="admin-heading">
+    <h1>Dashboard</h1>
+    <p class="muted">Welcome back, {{ username }}.</p>
+</header>
+
+<section class="stats">
+    <article>
+        <h2>Posts</h2>
+        <p class="metric">{{ total_posts }}</p>
+        <p class="muted">{{ published }} published · {{ drafts }} drafts · {{ archived }} archived</p>
+        <a class="button-link" href="/admin/posts">Manage posts</a>
+    </article>
+    <article>
+        <h2>Categories</h2>
+        <p class="metric">{{ category_count }}</p>
+        <a class="button-link" href="/admin/categories">Manage categories</a>
+    </article>
+    <article>
+        <h2>Tags</h2>
+        <p class="metric">{{ tag_count }}</p>
+        <a class="button-link" href="/admin/tags">Manage tags</a>
+    </article>
+</section>
+{% endblock %}

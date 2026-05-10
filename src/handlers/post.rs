@@ -47,6 +47,7 @@ pub async fn post_detail(
     Ok(HtmlTemplate(PostDetailTemplate {
         site_name: state.settings.site_name.clone(),
         site_description: state.settings.site_description.clone(),
+        site_url: state.settings.site_url.clone(),
         post,
         category,
         tags,

@@ -1,0 +1,70 @@
+{% extends "admin/_layout.html" %}
+
+{% block title %}Settings · Admin · {{ site_name }}{% endblock %}
+
+{% block admin_content %}
+<header class="admin-heading">
+    <h1>Site settings</h1>
+</header>
+
+{% match message %}
+{% when Some with (msg) %}
+<p class="info">{{ msg }}</p>
+{% when None %}
+{% endmatch %}
+
+<form class="admin-form" method="post" action="/admin/settings">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+    <label>
+        <span>Site name</span>
+        <input type="text" name="site_name" value="{{ settings.site_name }}" required>
+    </label>
+
+    <label>
+        <span>Subtitle</span>
+        <input type="text" name="site_subtitle" value="{{ settings.site_subtitle }}">
+    </label>
+
+    <label>
+        <span>Description</span>
+        <textarea name="site_description" rows="2">{{ settings.site_description }}</textarea>
+    </label>
+
+    <label>
+        <span>Footer copyright</span>
+        <input type="text" name="footer_copyright" value="{{ settings.footer_copyright }}">
+    </label>
+
+    <label>
+        <span>About page content</span>
+        <textarea name="about_content" rows="6">{{ settings.about_content }}</textarea>
+    </label>
+
+    <div class="row">
+        <label>
+            <span>Posts per page</span>
+            <input type="number" name="posts_per_page" min="1" max="100" value="{{ settings.posts_per_page }}">
+        </label>
+        <label>
+            <span>SEO title template</span>
+            <input type="text" name="seo_title_template" value="{{ settings.seo_title_template }}" placeholder="{title} | {site_name}">
+        </label>
+    </div>
+
+    <button type="submit" class="primary">Save settings</button>
+</form>
+
+<section class="upload-block">
+    <h2>Upload media</h2>
+    <form class="admin-form" method="post" action="/admin/upload" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label>
+            <span>Image file</span>
+            <input type="file" name="file" accept="image/png,image/jpeg,image/gif,image/webp" required>
+        </label>
+        <button type="submit">Upload</button>
+    </form>
+    <p class="muted">Uploaded files become available at <code>/static/uploads/&lt;name&gt;</code>.</p>
+</section>
+{% endblock %}

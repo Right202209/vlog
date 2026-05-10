@@ -1,0 +1,49 @@
+{% extends "admin/_layout.html" %}
+
+{% block title %}Tags · Admin · {{ site_name }}{% endblock %}
+
+{% block admin_content %}
+<header class="admin-heading">
+    <h1>Tags</h1>
+</header>
+
+<form class="admin-form" method="post" action="/admin/tags">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="row">
+        <label>
+            <span>Name</span>
+            <input type="text" name="name" required>
+        </label>
+        <label>
+            <span>Slug</span>
+            <input type="text" name="slug" placeholder="auto">
+        </label>
+    </div>
+    <button type="submit" class="primary">Add tag</button>
+</form>
+
+<ul class="admin-list">
+    {% for tag in tags %}
+    <li class="admin-list-item">
+        <form class="admin-form inline-form" method="post" action="/admin/tags/{{ tag.id }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <div class="row">
+                <label>
+                    <span>Name</span>
+                    <input type="text" name="name" value="{{ tag.name }}" required>
+                </label>
+                <label>
+                    <span>Slug</span>
+                    <input type="text" name="slug" value="{{ tag.slug }}">
+                </label>
+            </div>
+            <button type="submit">Save</button>
+        </form>
+        <form class="inline-form" method="post" action="/admin/tags/{{ tag.id }}/delete" onsubmit="return confirm('Delete this tag?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button type="submit" class="danger">Delete</button>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

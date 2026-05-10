@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block head_extra %}
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'">
+{% endblock %}
+
+{% block content %}
+<section class="admin-shell">
+    <aside class="admin-nav" aria-label="Admin">
+        <p class="eyebrow">Admin</p>
+        <nav>
+            <a href="/admin">Dashboard</a>
+            <a href="/admin/posts">Posts</a>
+            <a href="/admin/categories">Categories</a>
+            <a href="/admin/tags">Tags</a>
+            <a href="/admin/settings">Settings</a>
+        </nav>
+        <form class="admin-logout" action="/admin/logout" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <span class="muted">Signed in as <strong>{{ username }}</strong></span>
+            <button type="submit">Sign out</button>
+        </form>
+    </aside>
+    <section class="admin-main">
+        {% block admin_content %}{% endblock %}
+    </section>
+</section>
+{% endblock %}

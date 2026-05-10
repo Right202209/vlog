@@ -1,0 +1,57 @@
+{% extends "admin/_layout.html" %}
+
+{% block title %}Categories · Admin · {{ site_name }}{% endblock %}
+
+{% block admin_content %}
+<header class="admin-heading">
+    <h1>Categories</h1>
+</header>
+
+<form class="admin-form" method="post" action="/admin/categories">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="row">
+        <label>
+            <span>Name</span>
+            <input type="text" name="name" required>
+        </label>
+        <label>
+            <span>Slug</span>
+            <input type="text" name="slug" placeholder="auto">
+        </label>
+    </div>
+    <label>
+        <span>Description</span>
+        <input type="text" name="description">
+    </label>
+    <button type="submit" class="primary">Add category</button>
+</form>
+
+<ul class="admin-list">
+    {% for category in categories %}
+    <li class="admin-list-item">
+        <form class="admin-form inline-form" method="post" action="/admin/categories/{{ category.id }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <div class="row">
+                <label>
+                    <span>Name</span>
+                    <input type="text" name="name" value="{{ category.name }}" required>
+                </label>
+                <label>
+                    <span>Slug</span>
+                    <input type="text" name="slug" value="{{ category.slug }}">
+                </label>
+            </div>
+            <label>
+                <span>Description</span>
+                <input type="text" name="description" value="{% match category.description %}{% when Some with (d) %}{{ d }}{% when None %}{% endmatch %}">
+            </label>
+            <button type="submit">Save</button>
+        </form>
+        <form class="inline-form" method="post" action="/admin/categories/{{ category.id }}/delete" onsubmit="return confirm('Delete this category?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button type="submit" class="danger">Delete</button>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
