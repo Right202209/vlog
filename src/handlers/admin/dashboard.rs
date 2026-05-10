@@ -1,6 +1,6 @@
 use crate::app_state;
 use crate::repositories::{category_repo, post_repo, tag_repo};
-use crate::services::admin_guard;
+use crate::services::auth_guard;
 use crate::templates::{AdminDashboardTemplate, HtmlTemplate};
 use crate::utils::error::AppError;
 use crate::utils::extract::RequestHeaders;
@@ -9,7 +9,7 @@ pub async fn dashboard(
     RequestHeaders(headers): RequestHeaders,
 ) -> Result<HtmlTemplate<AdminDashboardTemplate>, AppError> {
     let state = app_state()?;
-    let auth = admin_guard::require_admin(&state.pool, &headers).await?;
+    let auth = auth_guard::require_admin(&state.pool, &headers).await?;
 
     let posts = post_repo::list_all(&state.pool).await?;
     let total_posts = posts.len();

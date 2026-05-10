@@ -6,7 +6,7 @@ use volo_http::server::extract::Form;
 use volo_http::server::IntoResponse;
 
 use crate::app_state;
-use crate::services::admin_guard;
+use crate::services::auth_guard;
 use crate::services::auth_service;
 use crate::templates::{AdminLoginTemplate, HtmlTemplate};
 use crate::utils::cookie::{clear_session_cookie, parse_cookies, session_cookie, SESSION_COOKIE};
@@ -84,11 +84,11 @@ pub async fn logout(
         Err(e) => return e.into_response(),
     };
 
-    let auth = match admin_guard::require_admin(&state.pool, &headers).await {
+    let auth = match auth_guard::require_admin(&state.pool, &headers).await {
         Ok(auth) => auth,
         Err(error) => return error.into_response(),
     };
-    if let Err(error) = admin_guard::verify_csrf(&auth, Some(&form.csrf_token)) {
+    if let Err(error) = auth_guard::verify_csrf(&auth, Some(&form.csrf_token)) {
         return error.into_response();
     }
 

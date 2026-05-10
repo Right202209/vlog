@@ -7,7 +7,7 @@ use volo_http::server::IntoResponse;
 
 use crate::app_state;
 use crate::repositories::tag_repo;
-use crate::services::admin_guard;
+use crate::services::auth_guard;
 use crate::templates::{AdminTagsTemplate, HtmlTemplate};
 use crate::utils::error::AppError;
 use crate::utils::extract::RequestHeaders;
@@ -31,7 +31,7 @@ pub async fn list(
     RequestHeaders(headers): RequestHeaders,
 ) -> Result<HtmlTemplate<AdminTagsTemplate>, AppError> {
     let state = app_state()?;
-    let auth = admin_guard::require_admin(&state.pool, &headers).await?;
+    let auth = auth_guard::require_admin(&state.pool, &headers).await?;
     let tags = tag_repo::list_all(&state.pool).await?;
     Ok(HtmlTemplate(AdminTagsTemplate {
         site_name: state.settings.site_name.clone(),
@@ -54,8 +54,8 @@ pub async fn create(
 
 async fn create_inner(headers: HeaderMap, form: TagForm) -> Result<Response, AppError> {
     let state = app_state()?;
-    let auth = admin_guard::require_admin(&state.pool, &headers).await?;
-    admin_guard::verify_csrf(&auth, Some(&form.csrf_token))?;
+    let auth = auth_guard::require_admin(&state.pool, &headers).await?;
+    auth_guard::verify_csrf(&auth, Some(&form.csrf_token))?;
 
     let name = form.name.trim();
     if name.is_empty() {
@@ -93,8 +93,8 @@ pub async fn update(
 
 async fn update_inner(headers: HeaderMap, id: i64, form: TagForm) -> Result<Response, AppError> {
     let state = app_state()?;
-    let auth = admin_guard::require_admin(&state.pool, &headers).await?;
-    admin_guard::verify_csrf(&auth, Some(&form.csrf_token))?;
+    let auth = auth_guard::require_admin(&state.pool, &headers).await?;
+    auth_guard::verify_csrf(&auth, Some(&form.csrf_token))?;
 
     tag_repo::find_by_id(&state.pool, id)
         .await?
@@ -136,8 +136,8 @@ pub async fn delete(
 
 async fn delete_inner(headers: HeaderMap, id: i64, form: CsrfOnly) -> Result<Response, AppError> {
     let state = app_state()?;
-    let auth = admin_guard::require_admin(&state.pool, &headers).await?;
-    admin_guard::verify_csrf(&auth, Some(&form.csrf_token))?;
+    let auth = auth_guard::require_admin(&state.pool, &headers).await?;
+    auth_guard::verify_csrf(&auth, Some(&form.csrf_token))?;
     tag_repo::find_by_id(&state.pool, id)
         .await?
         .ok_or(AppError::NotFound)?;

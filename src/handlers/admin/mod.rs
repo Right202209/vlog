@@ -5,3 +5,4 @@ pub mod posts;
 pub mod settings;
 pub mod tags;
 pub mod upload;
+pub mod users;

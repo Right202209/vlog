@@ -8,7 +8,7 @@ use volo_http::server::IntoResponse;
 
 use crate::app_state;
 use crate::repositories::asset_repo;
-use crate::services::admin_guard;
+use crate::services::auth_guard;
 use crate::utils::error::AppError;
 use crate::utils::extract::RequestHeaders;
 use crate::utils::response::redirect;
@@ -38,7 +38,7 @@ pub async fn upload(
 
 async fn upload_inner(headers: HeaderMap, mut multipart: Multipart) -> Result<Response, AppError> {
     let state = app_state()?;
-    let auth = admin_guard::require_admin(&state.pool, &headers).await?;
+    let auth = auth_guard::require_admin(&state.pool, &headers).await?;
 
     let mut csrf_verified = false;
     let mut uploads = Vec::new();
@@ -68,7 +68,7 @@ async fn upload_inner(headers: HeaderMap, mut multipart: Multipart) -> Result<Re
             }
             let token = String::from_utf8(bytes)
                 .map_err(|_| AppError::BadRequest("Invalid CSRF token.".to_string()))?;
-            admin_guard::verify_csrf(&auth, Some(&token))?;
+            auth_guard::verify_csrf(&auth, Some(&token))?;
             csrf_verified = true;
             continue;
         }

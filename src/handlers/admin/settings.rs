@@ -7,7 +7,7 @@ use volo_http::server::IntoResponse;
 use crate::app_state;
 use crate::domain::SiteSettings;
 use crate::repositories::settings_repo;
-use crate::services::admin_guard;
+use crate::services::auth_guard;
 use crate::templates::{AdminSettingsTemplate, HtmlTemplate};
 use crate::utils::error::AppError;
 use crate::utils::extract::RequestHeaders;
@@ -36,7 +36,7 @@ pub async fn show(
     RequestHeaders(headers): RequestHeaders,
 ) -> Result<HtmlTemplate<AdminSettingsTemplate>, AppError> {
     let state = app_state()?;
-    let auth = admin_guard::require_admin(&state.pool, &headers).await?;
+    let auth = auth_guard::require_admin(&state.pool, &headers).await?;
     let map = settings_repo::load_all(&state.pool).await?;
     let settings = SiteSettings::from_map(&map);
     Ok(HtmlTemplate(AdminSettingsTemplate {
@@ -61,8 +61,8 @@ pub async fn save(
 
 async fn save_inner(headers: HeaderMap, form: SettingsForm) -> Result<Response, AppError> {
     let state = app_state()?;
-    let auth = admin_guard::require_admin(&state.pool, &headers).await?;
-    admin_guard::verify_csrf(&auth, Some(&form.csrf_token))?;
+    let auth = auth_guard::require_admin(&state.pool, &headers).await?;
+    auth_guard::verify_csrf(&auth, Some(&form.csrf_token))?;
 
     let posts_per_page: u32 = form.posts_per_page.trim().parse().unwrap_or(10).clamp(1, 100);
 

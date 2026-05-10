@@ -19,7 +19,7 @@ pub async fn rss() -> Result<XmlTemplate<RssTemplate>, AppError> {
                 Some(value) => datetime::rfc2822(value),
                 None => datetime::rfc2822(&post.updated_at),
             };
-            let url = format!("{}/posts/{}", state.settings.site_url, post.slug);
+            let url = format!("{}/blog/posts/{}", state.settings.site_url, post.slug);
             FeedItem {
                 title: post.title,
                 url,
@@ -49,7 +49,7 @@ pub async fn sitemap() -> Result<XmlTemplate<SitemapTemplate>, AppError> {
                 None => datetime::iso_date(&post.updated_at),
             };
             SitemapItem {
-                url: format!("{}/posts/{}", state.settings.site_url, post.slug),
+                url: format!("{}/blog/posts/{}", state.settings.site_url, post.slug),
                 lastmod,
             }
         })

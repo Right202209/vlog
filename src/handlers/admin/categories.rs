@@ -6,7 +6,7 @@ use volo_http::server::IntoResponse;
 
 use crate::app_state;
 use crate::repositories::category_repo;
-use crate::services::admin_guard;
+use crate::services::auth_guard;
 use crate::templates::{AdminCategoriesTemplate, HtmlTemplate};
 use crate::utils::error::AppError;
 use crate::utils::extract::RequestHeaders;
@@ -32,7 +32,7 @@ pub async fn list(
     RequestHeaders(headers): RequestHeaders,
 ) -> Result<HtmlTemplate<AdminCategoriesTemplate>, AppError> {
     let state = app_state()?;
-    let auth = admin_guard::require_admin(&state.pool, &headers).await?;
+    let auth = auth_guard::require_admin(&state.pool, &headers).await?;
     let categories = category_repo::list_all(&state.pool).await?;
     Ok(HtmlTemplate(AdminCategoriesTemplate {
         site_name: state.settings.site_name.clone(),
@@ -58,8 +58,8 @@ async fn create_inner(
     form: CategoryForm,
 ) -> Result<Response, AppError> {
     let state = app_state()?;
-    let auth = admin_guard::require_admin(&state.pool, &headers).await?;
-    admin_guard::verify_csrf(&auth, Some(&form.csrf_token))?;
+    let auth = auth_guard::require_admin(&state.pool, &headers).await?;
+    auth_guard::verify_csrf(&auth, Some(&form.csrf_token))?;
 
     let name = form.name.trim();
     if name.is_empty() {
@@ -106,8 +106,8 @@ async fn update_inner(
     form: CategoryForm,
 ) -> Result<Response, AppError> {
     let state = app_state()?;
-    let auth = admin_guard::require_admin(&state.pool, &headers).await?;
-    admin_guard::verify_csrf(&auth, Some(&form.csrf_token))?;
+    let auth = auth_guard::require_admin(&state.pool, &headers).await?;
+    auth_guard::verify_csrf(&auth, Some(&form.csrf_token))?;
 
     category_repo::find_by_id(&state.pool, id)
         .await?
@@ -158,8 +158,8 @@ async fn delete_inner(
     form: CsrfOnly,
 ) -> Result<Response, AppError> {
     let state = app_state()?;
-    let auth = admin_guard::require_admin(&state.pool, &headers).await?;
-    admin_guard::verify_csrf(&auth, Some(&form.csrf_token))?;
+    let auth = auth_guard::require_admin(&state.pool, &headers).await?;
+    auth_guard::verify_csrf(&auth, Some(&form.csrf_token))?;
     category_repo::find_by_id(&state.pool, id)
         .await?
         .ok_or(AppError::NotFound)?;

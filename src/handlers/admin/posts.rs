@@ -6,7 +6,7 @@ use volo_http::server::IntoResponse;
 
 use crate::app_state;
 use crate::repositories::{category_repo, post_repo, tag_repo};
-use crate::services::{admin_guard, admin_post_service};
+use crate::services::{auth_guard, admin_post_service};
 use crate::templates::{AdminPostEditTemplate, AdminPostsTemplate, HtmlTemplate};
 use crate::utils::error::AppError;
 use crate::utils::extract::RequestHeaders;
@@ -42,7 +42,7 @@ pub async fn list(
     RequestHeaders(headers): RequestHeaders,
 ) -> Result<HtmlTemplate<AdminPostsTemplate>, AppError> {
     let state = app_state()?;
-    let auth = admin_guard::require_admin(&state.pool, &headers).await?;
+    let auth = auth_guard::require_admin(&state.pool, &headers).await?;
     let posts = post_repo::list_all(&state.pool).await?;
     Ok(HtmlTemplate(AdminPostsTemplate {
         site_name: state.settings.site_name.clone(),
@@ -57,7 +57,7 @@ pub async fn new_form(
     RequestHeaders(headers): RequestHeaders,
 ) -> Result<HtmlTemplate<AdminPostEditTemplate>, AppError> {
     let state = app_state()?;
-    let auth = admin_guard::require_admin(&state.pool, &headers).await?;
+    let auth = auth_guard::require_admin(&state.pool, &headers).await?;
     let categories = category_repo::list_all(&state.pool).await?;
     let tags = tag_repo::list_all(&state.pool).await?;
     Ok(HtmlTemplate(AdminPostEditTemplate {
@@ -96,8 +96,8 @@ async fn create_inner(
     form: PostForm,
 ) -> Result<Response, AppError> {
     let state = app_state()?;
-    let auth = admin_guard::require_admin(&state.pool, &headers).await?;
-    admin_guard::verify_csrf(&auth, Some(form.csrf_token.as_str()))?;
+    let auth = auth_guard::require_admin(&state.pool, &headers).await?;
+    auth_guard::verify_csrf(&auth, Some(form.csrf_token.as_str()))?;
 
     let title = form.title.trim();
     if title.is_empty() {
@@ -149,7 +149,7 @@ pub async fn edit_form(
     PathParams(id): PathParams<i64>,
 ) -> Result<HtmlTemplate<AdminPostEditTemplate>, AppError> {
     let state = app_state()?;
-    let auth = admin_guard::require_admin(&state.pool, &headers).await?;
+    let auth = auth_guard::require_admin(&state.pool, &headers).await?;
     let post = post_repo::find_by_id(&state.pool, id)
         .await?
         .ok_or(AppError::NotFound)?;
@@ -200,8 +200,8 @@ async fn update_inner(
     form: PostForm,
 ) -> Result<Response, AppError> {
     let state = app_state()?;
-    let auth = admin_guard::require_admin(&state.pool, &headers).await?;
-    admin_guard::verify_csrf(&auth, Some(form.csrf_token.as_str()))?;
+    let auth = auth_guard::require_admin(&state.pool, &headers).await?;
+    auth_guard::verify_csrf(&auth, Some(form.csrf_token.as_str()))?;
 
     let _existing = post_repo::find_by_id(&state.pool, id)
         .await?
@@ -292,8 +292,8 @@ async fn status_change(
     status: &str,
 ) -> Result<Response, AppError> {
     let state = app_state()?;
-    let auth = admin_guard::require_admin(&state.pool, &headers).await?;
-    admin_guard::verify_csrf(&auth, Some(csrf))?;
+    let auth = auth_guard::require_admin(&state.pool, &headers).await?;
+    auth_guard::verify_csrf(&auth, Some(csrf))?;
     post_repo::find_by_id(&state.pool, id)
         .await?
         .ok_or(AppError::NotFound)?;
@@ -307,8 +307,8 @@ async fn delete_inner(
     csrf: &str,
 ) -> Result<Response, AppError> {
     let state = app_state()?;
-    let auth = admin_guard::require_admin(&state.pool, &headers).await?;
-    admin_guard::verify_csrf(&auth, Some(csrf))?;
+    let auth = auth_guard::require_admin(&state.pool, &headers).await?;
+    auth_guard::verify_csrf(&auth, Some(csrf))?;
     post_repo::find_by_id(&state.pool, id)
         .await?
         .ok_or(AppError::NotFound)?;
