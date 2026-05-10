@@ -8,7 +8,7 @@ use crate::templates::{HomeTemplate, HtmlTemplate, TimelineTemplate};
 use crate::utils::error::AppError;
 use crate::utils::extract::RequestHeaders;
 
-const COMPOSE_PLACEHOLDER: &str = "What's happening?";
+const COMPOSE_PLACEHOLDER: &str = "Write a note… ✨";
 const PER_PAGE: u32 = 20;
 
 pub async fn global(

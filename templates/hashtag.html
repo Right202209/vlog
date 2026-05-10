@@ -15,7 +15,7 @@
     {% for view in statuses %}
     {% include "_status_card.html" %}
     {% else %}
-    <p class="muted">No statuses with #{{ tag }} yet.</p>
+    <p class="muted">No notes tagged #{{ tag }} yet 🔍</p>
     {% endfor %}
     <nav class="pagination" aria-label="Pagination">
         <span>Page {{ page }} of {{ total_pages }}</span>

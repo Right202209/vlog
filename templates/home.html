@@ -7,8 +7,8 @@
 {% block content %}
 <section class="page-heading">
     <p class="eyebrow">Home</p>
-    <h1>Following</h1>
-    <p class="muted">Statuses from accounts you follow, plus your own.</p>
+    <h1>Following 🌿</h1>
+    <p class="muted">The latest from people you follow, plus your own posts.</p>
 </section>
 
 {% include "_composer.html" %}
@@ -17,7 +17,7 @@
     {% for view in statuses %}
     {% include "_status_card.html" %}
     {% else %}
-    <p class="muted">Your home timeline is empty. Follow someone to fill it up.</p>
+    <p class="muted">Your home timeline is empty 🌱 follow someone to fill it up.</p>
     {% endfor %}
     <nav class="pagination" aria-label="Pagination">
         <span>Page {{ page }} of {{ total_pages }}</span>

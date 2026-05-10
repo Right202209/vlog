@@ -7,7 +7,7 @@
 {% block content %}
 <section class="page-heading">
     <p class="eyebrow">Timeline</p>
-    <h1>What's happening</h1>
+    <h1>Recent notes ✨</h1>
 </section>
 
 {% include "_composer.html" %}
@@ -16,7 +16,7 @@
     {% for view in statuses %}
     {% include "_status_card.html" %}
     {% else %}
-    <p class="muted">No statuses yet.</p>
+    <p class="muted">It's quiet here 🌙 No notes yet.</p>
     {% endfor %}
     <nav class="pagination" aria-label="Pagination">
         <span>Page {{ page }} of {{ total_pages }}</span>

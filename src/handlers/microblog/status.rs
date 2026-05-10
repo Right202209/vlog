@@ -19,7 +19,7 @@ use crate::utils::response::redirect;
 
 const MAX_TEXT_FIELD_BYTES: usize = 16 * 1024;
 const MAX_FILES_PER_STATUS: usize = 4;
-const COMPOSE_PLACEHOLDER: &str = "Post your reply";
+const COMPOSE_PLACEHOLDER: &str = "Write a reply… 💬";
 
 #[derive(Debug, Deserialize)]
 pub struct CsrfOnly {
