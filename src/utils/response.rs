@@ -12,6 +12,15 @@ pub fn redirect(location: &str) -> Response {
     resp
 }
 
+pub fn redirect_permanent(location: &str) -> Response {
+    let mut resp = Response::default();
+    *resp.status_mut() = StatusCode::MOVED_PERMANENTLY;
+    if let Ok(value) = HeaderValue::from_str(location) {
+        resp.headers_mut().insert(LOCATION, value);
+    }
+    resp
+}
+
 pub fn redirect_with_cookie(location: &str, cookie: &str) -> Response {
     let mut resp = redirect(location);
     if let Ok(value) = HeaderValue::from_str(cookie) {
