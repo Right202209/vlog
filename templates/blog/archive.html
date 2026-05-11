@@ -8,24 +8,29 @@
     <h1>Archive</h1>
 </section>
 
-<section class="archive">
-    {% for month in months %}
-    <div class="archive-month">
-        <h2>{{ month.year }}-{{ month.month }}</h2>
-        <ul>
-            {% for post in month.posts %}
-            <li>
-                <a href="/blog/posts/{{ post.slug }}">{{ post.title }}</a>
-                {% match post.published_at %}
-                {% when Some with (published_at) %}
-                <time>{{ published_at }}</time>
-                {% when None %}
-                {% endmatch %}
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endfor %}
-</section>
-{% endblock %}
+<div class="layout">
+    <section class="archive">
+        {% for month in months %}
+        <div class="archive-month">
+            <h2>{{ month.year }}-{{ month.month }}</h2>
+            <ul>
+                {% for post in month.posts %}
+                <li>
+                    <a href="/blog/posts/{{ post.slug }}">{{ post.title }}</a>
+                    {% match post.published_at %}
+                    {% when Some with (published_at) %}
+                    <time>{{ published_at }}</time>
+                    {% when None %}
+                    {% endmatch %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    </section>
 
+    {% include "blog/_sidebar.html" %}
+</div>
+
+<script src="/static/js/blog-search.js" defer></script>
+{% endblock %}

@@ -75,6 +75,8 @@ pub async fn category_page(
         posts,
         page,
         total_pages: total_pages(total, per_page),
+        categories: category_repo::list_all(&state.pool).await?,
+        tags: tag_repo::list_all(&state.pool).await?,
     }))
 }
 
@@ -99,6 +101,8 @@ pub async fn tag_page(
         posts,
         page,
         total_pages: total_pages(total, per_page),
+        categories: category_repo::list_all(&state.pool).await?,
+        tags: tag_repo::list_all(&state.pool).await?,
     }))
 }
 
@@ -108,6 +112,8 @@ pub async fn archive() -> Result<HtmlTemplate<ArchiveTemplate>, AppError> {
         site_name: state.settings.site_name.clone(),
         site_description: state.settings.site_description.clone(),
         months: post_repo::archive_grouped_by_year_month(&state.pool).await?,
+        categories: category_repo::list_all(&state.pool).await?,
+        tags: tag_repo::list_all(&state.pool).await?,
     }))
 }
 

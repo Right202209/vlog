@@ -13,25 +13,30 @@
     {% endmatch %}
 </section>
 
-<section class="post-list">
-    {% for item in posts %}
-    <article class="post-card">
-        <h2><a href="/blog/posts/{{ item.post.slug }}">{{ item.post.title }}</a></h2>
-        {% match item.post.summary %}
-        {% when Some with (summary) %}
-        <p>{{ summary }}</p>
-        {% when None %}
-        {% endmatch %}
-        <div class="tag-row">
-            {% for tag in item.tags %}
-            <a href="/blog/tags/{{ tag.slug }}">#{{ tag.name }}</a>
-            {% endfor %}
-        </div>
-    </article>
-    {% endfor %}
-    <nav class="pagination" aria-label="Pagination">
-        <span>Page {{ page }} of {{ total_pages }}</span>
-    </nav>
-</section>
-{% endblock %}
+<div class="layout">
+    <section class="post-list">
+        {% for item in posts %}
+        <article class="post-card">
+            <h2><a href="/blog/posts/{{ item.post.slug }}">{{ item.post.title }}</a></h2>
+            {% match item.post.summary %}
+            {% when Some with (summary) %}
+            <p>{{ summary }}</p>
+            {% when None %}
+            {% endmatch %}
+            <div class="tag-row">
+                {% for tag in item.tags %}
+                <a href="/blog/tags/{{ tag.slug }}">#{{ tag.name }}</a>
+                {% endfor %}
+            </div>
+        </article>
+        {% endfor %}
+        <nav class="pagination" aria-label="Pagination">
+            <span>Page {{ page }} of {{ total_pages }}</span>
+        </nav>
+    </section>
 
+    {% include "blog/_sidebar.html" %}
+</div>
+
+<script src="/static/js/blog-search.js" defer></script>
+{% endblock %}

@@ -352,6 +352,15 @@ migrations/
 
 详细方案见 `docs/M4_MICROBLOG.md`。
 
+### M5：RPC 服务拆分
+
+- 在保留单体可运行的前提下，把若干 "重 IO / 慢 IO / 易抖" 的子系统抽成独立 RPC 服务，Volo-HTTP 主进程作为编排层。
+- 协议：CloudWeGo 同栈，沿用 Volo（Thrift 为主，重数据流的服务走 gRPC）。
+- 候选服务：search-service、media-service、ai-assist-service、notification-service、read-api / federation gateway。
+- 不要求一次性全部落地；按痛点逐个拆。
+
+详细方案见 §18。
+
 ## 14. 验收标准
 
 - 管理员可以登录后台并完成一篇文章从创建到发布的全过程。
@@ -462,3 +471,81 @@ migrations/
 - 旧博客 `/posts/{slug}`、`/categories/{slug}` 等返回 301，`/blog/*` 内容完整。
 - 所有写接口仍受 CSRF 校验保护；非管理员无法访问 `/admin/*`。
 - `cargo check` 全量通过。
+
+## 18. M5：RPC 服务拆分详细范围
+
+### 18.1 设计原则
+
+- 单体仍可独立运行：每个 RPC 服务都有 in-process 兜底实现，调用接口由 trait 定义；选择哪种实现由配置决定。这样不强迫所有部署都拉一组进程。
+- 协议同栈优先：Thrift 用于普通 RPC，gRPC 用于流式（媒体上传、embedding）。
+- 每个服务对外只暴露很窄的接口，避免把数据库行结构泄漏出去。
+- 服务调用走 Volo client，超时 / 重试 / 限流 / 熔断在 client 侧统一配置。
+
+### 18.2 候选服务
+
+#### 18.2.1 search-service（Thrift）
+
+- 当前 `/blog/search` 是 SQL `LIKE`，没有分词、模糊匹配、相关性排序。
+- 微博侧 `/h/{tag}` 也是 `LIKE '%#tag%'`（CLAUDE.md 已经标了 "以后再优化"）。
+- 后端：Tantivy（嵌入式后服务化）或 Meilisearch（外置）。优先 Tantivy。
+- 索引内容：`posts.title / summary / content_md`、`statuses.content_md`、`tags.name`。
+- 提供两组接口：写侧（admin 创建 / 更新 post / status 时事件触发）和读侧（blog + microblog 复用同一查询入参）。
+- **优先级：高**——最早暴露的瓶颈，最值得先拆。
+
+#### 18.2.2 media-service（gRPC，stream 上传）
+
+- 上传现在裸存到 `storage/uploads/`，没有缩略图、avatar 居中裁剪、EXIF 剥离。
+- 慢 IO 不能再走 Volo-HTTP 主进程。
+- 抽出图片处理；以后视频转码、对象存储桥接（S3 / R2）也归这里。
+- 同步小图裁剪接口用于即时返回 thumb URL；异步重处理接口用于批量回填。
+- **优先级：中**——图大才痛。
+
+#### 18.2.3 ai-assist-service（gRPC）
+
+- LLM / embedding 调用集中处理超时、重试、并发限制、提示词模板版本。
+- 能力：
+  - blog post 自动生成 `summary`
+  - blog post 自动推荐 tag
+  - 长文 embedding，喂给 search-service 做语义搜索
+  - （可选）图片 alt 文本自动生成
+- 不直接读 DB，只接受文本输入；存回写由调用方做。
+- **优先级：低中**——增强体验，不阻塞核心能力。
+
+#### 18.2.4 notification-service（Thrift）
+
+- 当前 like / reply / follow 只走 SQL trigger 维护计数，**没有任何送达**。
+- 抽出统一事件入口：
+  - 输入：`{event_type, actor_id, target_user_id, status_id?}`
+  - 输出 fan-out：邮件、Web Push、webhook（用户配置）
+- 提供查询接口 `list_user_notifications(user_id, since)`，支撑后续站内通知中心。
+- **优先级：中**——单人站可暂缓，多用户后立刻需要。
+
+#### 18.2.5 read-api / federation gateway
+
+- 把 timeline / status / profile / blog post 暴露给浏览器以外的客户端（手机端、第三方阅读器、官方 CLI）。
+- 内部 Thrift（同栈），对外通过 HTTP gateway 转 JSON / ActivityPub。
+- ActivityPub bridge 让独立微博有真正的网络效应（与 Mastodon / Misskey 实例互通）。
+- **优先级：低**——产品价值高，工程量也高。
+
+### 18.3 仓库与构建结构
+
+- 新增 `idl/` 目录承载 `.thrift` / `.proto`，每个服务一个文件夹。
+- 主仓演进为 cargo workspace：
+  - `crates/server`（现 `src/`，HTTP 编排层）
+  - `crates/search-service`、`crates/media-service` 等
+  - `crates/proto`（生成代码 + client trait）
+- 单二进制部署仍可保留：feature flag 把 in-process 实现编进 server。
+
+### 18.4 非目标（M5 内不做）
+
+- 服务网格 / Sidecar / 服务发现（Consul / Nacos）。
+- 跨机房 / 多活 / 异地容灾。
+- 全量 ActivityPub 兼容（仅做单向出站为先）。
+- 自研搜索分词；中文分词复用 Tantivy 的 jieba / cang-jie 绑定。
+- 自研对象存储；要换本地盘直接接 S3 兼容协议。
+
+### 18.5 验收标准
+
+- 至少 search-service 能独立部署，`/blog/search`、`/h/{tag}` 走 RPC 调用；in-process fallback 仍可用。
+- `idl/` 中的 `.thrift` / `.proto` 提交后，client / server 代码能通过 `volo-build` 自动生成。
+- 任一 RPC 服务不可用时主进程不整体崩溃；调用层显式降级或返回 503。

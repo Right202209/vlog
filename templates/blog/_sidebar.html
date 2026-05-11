@@ -1,0 +1,32 @@
+<aside class="sidebar" aria-label="Browse">
+    <section class="sidebar-search">
+        <h2>Search</h2>
+        <div class="sidebar-search-box">
+            <input
+                id="sidebarSearch"
+                type="search"
+                name="q"
+                placeholder="Search posts…"
+                autocomplete="off"
+                data-suggest-url="/blog/search/suggest"
+                data-action-url="/blog/search">
+            <div id="sidebarSuggest" class="suggest-dropdown" hidden></div>
+        </div>
+    </section>
+    <section>
+        <h2>Categories</h2>
+        <ul>
+            {% for category in categories %}
+            <li><a href="/blog/categories/{{ category.slug }}">{{ category.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </section>
+    <section>
+        <h2>Tags</h2>
+        <div class="tag-cloud">
+            {% for tag in tags %}
+            <a href="/blog/tags/{{ tag.slug }}">{{ tag.name }}</a>
+            {% endfor %}
+        </div>
+    </section>
+</aside>

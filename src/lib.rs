@@ -86,6 +86,7 @@ pub fn build_router(state: AppState) -> Router {
         .route("/blog/tags/{slug}", get(handlers::blog::post::tag_page))
         .route("/blog/archive", get(handlers::blog::post::archive))
         .route("/blog/search", get(handlers::blog::search::search))
+        .route("/blog/search/suggest", get(handlers::blog::search::suggest))
         .route("/blog/about", get(handlers::blog::about::about))
         // Backwards-compat 301 redirects from the M1/M2 blog paths
         .route("/posts", get(legacy_redirect_blog))

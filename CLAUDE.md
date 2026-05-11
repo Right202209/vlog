@@ -80,7 +80,7 @@ Data model:
 
 ## Reference docs
 
-- `Prd.md` — full product requirements and milestone breakdown (M4 is §17).
+- `Prd.md` — full product requirements and milestone breakdown (M4 is §17, M5 RPC split is §18).
 - `docs/M4_MICROBLOG.md` — the canonical microblog plan: schema, routes, templates, files-touched, verification.
 - `docs/ARCHITECTURE.md` — layer responsibilities and milestone boundaries.
 - `docs/DEVELOPMENT.md` — commands, runtime files, M1/M2/M4 verification checklist.

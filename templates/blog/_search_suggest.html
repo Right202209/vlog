@@ -1,0 +1,21 @@
+{% if !posts.is_empty() %}
+<ul class="suggest-list" role="listbox">
+    {% for item in posts %}
+    <li role="option">
+        <a href="/blog/posts/{{ item.post.slug }}">
+            <span class="suggest-title">{{ item.post.title }}</span>
+            {% match item.post.summary %}
+            {% when Some with (summary) %}
+            <span class="suggest-summary">{{ summary }}</span>
+            {% when None %}
+            {% endmatch %}
+        </a>
+    </li>
+    {% endfor %}
+    <li class="suggest-more" role="option">
+        <a href="/blog/search?q={{ query }}">View all results for “{{ query }}” →</a>
+    </li>
+</ul>
+{% else %}
+<p class="suggest-empty">No matches for “{{ query }}”.</p>
+{% endif %}

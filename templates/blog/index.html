@@ -44,24 +44,8 @@
         </nav>
     </section>
 
-    <aside class="sidebar" aria-label="Browse">
-        <section>
-            <h2>Categories</h2>
-            <ul>
-                {% for category in categories %}
-                <li><a href="/blog/categories/{{ category.slug }}">{{ category.name }}</a></li>
-                {% endfor %}
-            </ul>
-        </section>
-        <section>
-            <h2>Tags</h2>
-            <div class="tag-cloud">
-                {% for tag in tags %}
-                <a href="/blog/tags/{{ tag.slug }}">{{ tag.name }}</a>
-                {% endfor %}
-            </div>
-        </section>
-    </aside>
+    {% include "blog/_sidebar.html" %}
 </div>
-{% endblock %}
 
+<script src="/static/js/blog-search.js" defer></script>
+{% endblock %}

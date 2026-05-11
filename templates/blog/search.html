@@ -8,37 +8,52 @@
     <h1>Search 🔎</h1>
 </section>
 
-<form class="expandable-search" action="/blog/search" method="get">
-    <div class="search-line"></div>
-    <input id="q" type="search" name="q" value="{{ query }}" placeholder="Search posts…" required>
-    <button type="submit" aria-label="Search" class="search-btn">
-        <svg class="search-circle-svg" viewBox="0 0 44 44">
-            <!-- Outer circle that unrolls -->
-            <path class="search-circle-path" d="M 22 42 A 20 20 0 0 0 22 2 A 20 20 0 0 0 22 42" />
-            <!-- Inner magnifying glass icon stays at the right -->
-            <g class="inner-icon">
-                <circle cx="22" cy="20" r="5" fill="none" stroke="currentColor" stroke-width="2"/>
-                <line x1="26" y1="24" x2="32" y2="30" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </g>
-        </svg>
-    </button>
-</form>
+<div class="layout">
+    <section>
+        <form class="expandable-search" action="/blog/search" method="get" autocomplete="off">
+            <div class="search-line"></div>
+            <input
+                id="mainSearch"
+                type="search"
+                name="q"
+                value="{{ query }}"
+                placeholder="Search posts…"
+                autocomplete="off"
+                data-suggest-url="/blog/search/suggest"
+                required>
+            <button type="submit" aria-label="Search" class="search-btn">
+                <svg class="search-circle-svg" viewBox="0 0 44 44">
+                    <path class="search-circle-path" d="M 22 42 A 20 20 0 0 0 22 2 A 20 20 0 0 0 22 42" />
+                    <g class="inner-icon">
+                        <circle cx="22" cy="20" r="5" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <line x1="26" y1="24" x2="32" y2="30" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </g>
+                </svg>
+            </button>
+            <div id="mainSuggest" class="suggest-dropdown suggest-dropdown--wide" hidden></div>
+        </form>
 
-<section class="post-list search-results">
-    {% for item in posts %}
-    <article class="post-card">
-        <h2><a href="/blog/posts/{{ item.post.slug }}">{{ item.post.title }}</a></h2>
-        {% match item.post.summary %}
-        {% when Some with (summary) %}
-        <p>{{ summary }}</p>
-        {% when None %}
-        {% endmatch %}
-        <div class="tag-row">
-            {% for tag in item.tags %}
-            <a href="/blog/tags/{{ tag.slug }}">#{{ tag.name }}</a>
+        <section class="post-list search-results">
+            {% for item in posts %}
+            <article class="post-card">
+                <h2><a href="/blog/posts/{{ item.post.slug }}">{{ item.post.title }}</a></h2>
+                {% match item.post.summary %}
+                {% when Some with (summary) %}
+                <p>{{ summary }}</p>
+                {% when None %}
+                {% endmatch %}
+                <div class="tag-row">
+                    {% for tag in item.tags %}
+                    <a href="/blog/tags/{{ tag.slug }}">#{{ tag.name }}</a>
+                    {% endfor %}
+                </div>
+            </article>
             {% endfor %}
-        </div>
-    </article>
-    {% endfor %}
-</section>
+        </section>
+    </section>
+
+    {% include "blog/_sidebar.html" %}
+</div>
+
+<script src="/static/js/blog-search.js" defer></script>
 {% endblock %}

@@ -166,6 +166,8 @@ pub struct CategoryTemplate {
     pub posts: Vec<PostListItem>,
     pub page: u32,
     pub total_pages: u32,
+    pub categories: Vec<Category>,
+    pub tags: Vec<Tag>,
 }
 
 #[derive(Template)]
@@ -177,6 +179,8 @@ pub struct TagTemplate {
     pub posts: Vec<PostListItem>,
     pub page: u32,
     pub total_pages: u32,
+    pub categories: Vec<Category>,
+    pub tags: Vec<Tag>,
 }
 
 #[derive(Template)]
@@ -185,6 +189,8 @@ pub struct ArchiveTemplate {
     pub site_name: String,
     pub site_description: String,
     pub months: Vec<ArchiveMonth>,
+    pub categories: Vec<Category>,
+    pub tags: Vec<Tag>,
 }
 
 #[derive(Template)]
@@ -192,6 +198,15 @@ pub struct ArchiveTemplate {
 pub struct SearchTemplate {
     pub site_name: String,
     pub site_description: String,
+    pub query: String,
+    pub posts: Vec<PostListItem>,
+    pub categories: Vec<Category>,
+    pub tags: Vec<Tag>,
+}
+
+#[derive(Template)]
+#[template(path = "blog/_search_suggest.html")]
+pub struct SearchSuggestTemplate {
     pub query: String,
     pub posts: Vec<PostListItem>,
 }
